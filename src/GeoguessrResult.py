@@ -1,6 +1,8 @@
 import re
+from typing import Reversible
 from bs4 import BeautifulSoup
 from src.JSDevice import JSDevice
+from enum import Enum
 
 class Time:
 
@@ -22,6 +24,13 @@ class Time:
         if not isinstance(other, type(self)):
             return False
         return self.minutes == other.minutes and self.seconds == other.seconds
+
+class Rules(Enum):
+    default = 0
+    no_move = 1
+    no_zoom = 2
+    no_move_no_zoom = 3
+    no_move_no_pan_no_zoom = 4
 
 class GeoguessrResult:
 
@@ -97,7 +106,28 @@ class GeoguessrResult:
                 t = Time(0, 0)
         return t
     
+    @property
+    def rules(self) -> Rules:
+        """The map the Geoguessr run was in (by it's URL code on Geoguessr)"""
     
+        soup = BeautifulSoup(self.__get_html(), 'html.parser')
+        outer_div = soup("div", {'class': self.__OUTER_CLASS_INFO}, limit=2)
+        # outer_div[1] is right-hand info box at the top of the page, ie the time limit and rules
+        inner_info_p = outer_div[1].find("p")
+        no_move = re.match(r'.*No move', inner_info_p.text)
+        no_pan = re.match(r'.*No pan', inner_info_p.text)
+        no_zoom = re.match(r'.*No zoom', inner_info_p.text)
+        r = Rules.default
+        if (no_move and no_pan and no_zoom):
+            r = Rules.no_move_no_pan_no_zoom
+        elif (no_move and no_zoom):
+            r = Rules.no_move_no_zoom
+        elif (no_zoom):
+            r = Rules.no_zoom
+        elif (no_move):
+            r = Rules.no_move
+            
+        return r
     
     def __get_html(self):
         return self.__device.fetch_html(self.__URL_PREFIX + self.__code)

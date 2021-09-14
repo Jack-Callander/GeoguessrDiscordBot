@@ -5,7 +5,7 @@ const client = new Discord.Client();
 // Bot Code Here
 
 
-
+// WE USING PYTHON DELETE THIS
 
 
 

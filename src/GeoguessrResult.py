@@ -52,14 +52,14 @@ class GeoguessrResult:
         soup = BeautifulSoup(self.__get_html(), 'html.parser')
         outer_div = soup.find("div", {'class': self.__OUTER_CLASS})
         inner_div = outer_div.find("div", {'class': self.__INNER_CLASS_TIME})
-        match = re.match(r' - (\d+) min, (\d+) sec', inner_div.text)
+        match = re.match(r'.* - (\d+) min, (\d+) sec', inner_div.text)
         t = Time(0, 0)
         if match:
             # Minutes and Seconds
             t = Time(int(match.group(1)), int(match.group(2)))
         else:
             # Only Seconds
-            match = re.match(r' - (\d+) sec', inner_div.text)
+            match = re.match(r'.* - (\d+) sec', inner_div.text)
             t = Time(0, int(match.group(1)))
         return t
     
@@ -71,7 +71,7 @@ class GeoguessrResult:
         outer_div = soup("div", {'class': self.__OUTER_CLASS_INFO}, limit=2)
         # outer_div[0] is left-hand info box at the top of the page, ie the map and map author
         inner_map_a = outer_div[0].find("a")
-        map_code = inner_map_a["href"][6:-1]
+        map_code = inner_map_a["href"][6:]
         return map_code
         
     @property
@@ -83,7 +83,19 @@ class GeoguessrResult:
         # outer_div[1] is right-hand info box at the top of the page, ie the time limit and rules
         inner_info_p = outer_div[1].find("p")
         match = re.match(r'Max (\d+) minutes and (\d+) sec', inner_info_p.text)
-        return Time(int(match.group(1)), int(match.group(2))) if match else Time(0, 0)
+        t = Time(0, 0)
+        if match:
+            # Minutes and Seconds
+            t = Time(int(match.group(1)), int(match.group(2)))
+        else:
+            # Only Seconds
+            match = re.match(r'Max (\d+) sec', inner_info_p.text)
+            if match:
+                t = Time(0, int(match.group(1)))
+            else:
+                # No Limit
+                t = Time(0, 0)
+        return t
     
     
     

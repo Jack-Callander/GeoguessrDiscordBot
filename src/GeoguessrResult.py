@@ -46,7 +46,7 @@ class GeoguessrResult:
 
     @property
     def time(self) -> Time:
-        """Gets the time taken for the Geoguessr run."""
+        """The total time taken to complete the Geoguessr run."""
 
         soup = BeautifulSoup(self.__get_html(), 'html.parser')
         outer_div = soup.find("div", {'class': self.__OUTER_CLASS})

@@ -29,6 +29,7 @@ class GeoguessrResult:
     __OUTER_CLASS = 'results-highscore__guess-cell--total'
     __INNER_CLASS_SCORE = 'results-highscore__guess-cell-score'
     __INNER_CLASS_TIME = 'results-highscore__guess-cell-details'
+    __OUTER_CLASS_INFO = 'result-info-card__content'
 
     def __init__(self, device: JSDevice, code: str):
         self.__device = device
@@ -53,6 +54,16 @@ class GeoguessrResult:
         inner_div = outer_div.find("div", {'class': self.__INNER_CLASS_TIME})
         match = re.match(r'(\d+) m - (\d+) min, (\d+) sec', inner_div.text)
         return Time(int(match.group(2)), int(match.group(3))) if match else Time(0, 0)
+    
+    @property
+    def map(self) -> str:
+        """The map the Geoguessr run was in (by it's URL code on Geoguessr)"""
+    
+        soup = BeautifulSoup(self.__get_html(), 'html.parser')
+        outer_div = soup("div", {'class': self.__OUTER_CLASS_INFO}, limit=2)
+        inner_map_a = outer_div[0].find("a") # outer_div[0] is left hand info box at the top of the page
+        map_code = inner_map_a["href"][6:-1]
+        return map_code
     
     def __get_html(self):
         return self.__device.fetch_html(self.__URL_PREFIX + self.__code)

@@ -52,8 +52,16 @@ class GeoguessrResult:
         soup = BeautifulSoup(self.__get_html(), 'html.parser')
         outer_div = soup.find("div", {'class': self.__OUTER_CLASS})
         inner_div = outer_div.find("div", {'class': self.__INNER_CLASS_TIME})
-        match = re.match(r'(\d+) m - (\d+) min, (\d+) sec', inner_div.text)
-        return Time(int(match.group(2)), int(match.group(3))) if match else Time(0, 0)
+        match = re.match(r' - (\d+) min, (\d+) sec', inner_div.text)
+        t = Time(0, 0)
+        if match:
+            # Minutes and Seconds
+            t = Time(int(match.group(1)), int(match.group(2)))
+        else:
+            # Only Seconds
+            match = re.match(r' - (\d+) sec', inner_div.text)
+            t = Time(0, int(match.group(1)))
+        return t
     
     @property
     def map(self) -> str:
@@ -61,9 +69,23 @@ class GeoguessrResult:
     
         soup = BeautifulSoup(self.__get_html(), 'html.parser')
         outer_div = soup("div", {'class': self.__OUTER_CLASS_INFO}, limit=2)
-        inner_map_a = outer_div[0].find("a") # outer_div[0] is left hand info box at the top of the page
+        # outer_div[0] is left-hand info box at the top of the page, ie the map and map author
+        inner_map_a = outer_div[0].find("a")
         map_code = inner_map_a["href"][6:-1]
         return map_code
+        
+    @property
+    def time_limit(self) -> Time:
+        """The map the Geoguessr run was in (by it's URL code on Geoguessr)"""
+    
+        soup = BeautifulSoup(self.__get_html(), 'html.parser')
+        outer_div = soup("div", {'class': self.__OUTER_CLASS_INFO}, limit=2)
+        # outer_div[1] is right-hand info box at the top of the page, ie the time limit and rules
+        inner_info_p = outer_div[1].find("p")
+        match = re.match(r'Max (\d+) minutes and (\d+) sec', inner_info_p.text)
+        return Time(int(match.group(1)), int(match.group(2))) if match else Time(0, 0)
+    
+    
     
     def __get_html(self):
         return self.__device.fetch_html(self.__URL_PREFIX + self.__code)

@@ -8,6 +8,7 @@ from enum import Enum
 # https://www.geoguessr.com/results/eOpI74g7FUbUOtkt
 
 class Time:
+
     def __init__(self, mins=0, secs=0):
         self.minutes = mins
         self.seconds = secs
@@ -30,6 +31,19 @@ class Time:
     @classmethod
     def zero(cls):
         return cls(mins=0, secs=0)
+
+    @classmethod
+    def from_str(cls, str: str) -> 'Time':
+        match = re.search(r'(\d+) min.* (\d+) sec', str)
+        if match:
+            return cls(int(match.group(1)), int(match.group(2)))
+        match = re.search(r'(\d+) min', str)
+        if match:
+            return cls(int(match.group(1)), 0)
+        match = re.search(r'(\d+) sec', str)
+        if match:
+            return cls(0, int(match.group(1)))
+        return cls()
 
 class Units(Enum):
     METRES = 'm'
@@ -207,7 +221,7 @@ class GeoguessrResult:
         outer_div = soup.find_all("div", {'class': self.__OUTER_CLASS_INFO}, limit=2)
         # outer_div[1] is right-hand info box at the top of the page, ie the time limit and rules
         inner_info_p = outer_div[1].find_next("p")
-        return self.__str_to_Time(inner_info_p.text)
+        return Time.from_str(inner_info_p.text)
     
     @property
     def rules(self) -> Rules:
@@ -231,18 +245,6 @@ class GeoguessrResult:
             r = Rules.NO_MOVE
             
         return r
-        
-    def __str_to_Time(self, str) -> Time:
-        match = re.search(r'(\d+) min.* (\d+) sec', str)
-        if match:
-            return Time(int(match.group(1)), int(match.group(2)))
-        match = re.search(r'(\d+) min', str)
-        if match:
-            return Time(int(match.group(1)), 0)
-        match = re.search(r'(\d+) sec', str)
-        if match:
-            return Time(0, int(match.group(1)))
-        return Time()
     
     def __get_html(self) -> str:
         return self.__device.fetch_html(self.__URL_PREFIX + self.__code)
@@ -260,4 +262,4 @@ class GeoguessrResult:
 
     def __get_time(self, div) -> Time:
         inner_div = div.find("div", {'class': self.__INNER_CLASS_DETAILS})
-        return self.__str_to_Time(inner_div.text)
+        return Time.from_str(inner_div.text)

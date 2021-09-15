@@ -260,7 +260,4 @@ class GeoguessrResult:
 
     def __get_time(self, div) -> Time:
         inner_div = div.find("div", {'class': self.__INNER_CLASS_DETAILS})
-        match = re.match(r'.* - (?:(\d+) min, )?(\d+) sec', inner_div.text)
-        mins = match.group(1)
-        secs = match.group(2)
-        return Time(int(mins), int(secs)) if mins else Time(0, int(secs))
+        return self.__str_to_Time(inner_div.text)

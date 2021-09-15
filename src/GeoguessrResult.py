@@ -5,11 +5,7 @@ from src.JSDevice import JSDevice
 from enum import Enum
 
 class Time:
-
-    def __init__(self):
-        self.__init__(0, 0)
-
-    def __init__(self, minutes, seconds):
+    def __init__(self, minutes=0, seconds=0):
         self.minutes = minutes
         self.seconds = seconds
 
@@ -108,7 +104,7 @@ class GeoguessrResult:
         return r
     
     def __str_to_Time(self, str) -> Time:
-        match = re.search(r'(\d+) min.*(\d+) sec', str)
+        match = re.search(r'(\d+) min.* (\d+) sec', str)
         if match:
             return Time(int(match.group(1)), int(match.group(2)))
         match = re.search(r'(\d+) min', str)

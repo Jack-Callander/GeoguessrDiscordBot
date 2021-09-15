@@ -10,7 +10,7 @@ result = GeoguessrResult(device, TEST_RUN_1)
 assert result.score == 24492
 assert result.time == Time(4, 7)
 assert result.map == "5e22e9fc1e34a04cbcba3fce"
-assert result.time_limit == Time(0, 0)
+assert result.time_limit == Time()
 assert result.rules == Rules.default
 
 result = GeoguessrResult(device, TEST_RUN_2)

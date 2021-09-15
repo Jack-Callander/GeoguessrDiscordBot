@@ -23,6 +23,7 @@ class ChromeDevice(JSDevice):
             driver = webdriver.Chrome(options=chrome_options)
         else:
             driver = webdriver.Chrome("D:/chromedriver.exe", options=chrome_options)
+            
         driver.get(url)
         html = driver.page_source
         driver.quit()

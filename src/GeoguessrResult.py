@@ -1,6 +1,7 @@
 import re
 from typing import List
 from bs4 import BeautifulSoup
+from src.GeoguessrMap import GeoguessrMap
 from src.JSDevice import JSDevice
 from dataclasses import dataclass
 from enum import Enum
@@ -19,12 +20,21 @@ class Time:
     def __eq__(self, other):
         if self is other:
             return True
-        if other is None:
-            return False
         if not isinstance(other, Time):
             return False
         return self.minutes == other.minutes and self.seconds == other.seconds
     
+    def __lt__(self, other):
+        if self is other:
+            return False
+        if not isinstance(other, Time):
+            return False
+        if self.minutes > other.minutes:
+            return False
+        if self.minutes == other.minutes and self.seconds >= other.seconds:
+            return False
+        return True
+
     def __bool__(self):
         return self.minutes > 0 or self.seconds > 0
 
@@ -62,8 +72,6 @@ class Distance:
     def __eq__(self, other):
         if self is other:
             return True
-        if other is None:
-            return False
         if not isinstance(other, Distance):
             return False
         return abs(self - other) < 1e-12
@@ -132,8 +140,6 @@ class Round:
     def __eq__(self, other):
         if self is other:
             return True
-        if other is None:
-            return False
         if not isinstance(other, Round):
             return False
         if self.points != other.points:
@@ -150,6 +156,9 @@ class Rules(Enum):
     NO_ZOOM = 2
     NO_MOVE_NO_ZOOM = 3
     NO_MOVE_NO_PAN_NO_ZOOM = 4
+
+    def __lt__(self, other):
+        return self.value < other.value
 
 class GeoguessrResult:
 
@@ -204,14 +213,14 @@ class GeoguessrResult:
     
     @property
     def map(self) -> str:
-        """The map the Geoguessr run was in (by it's URL code on Geoguessr)."""
+        """The map the Geoguessr run was in."""
     
         soup = BeautifulSoup(self.__get_html(), 'html.parser')
         outer_div = soup.find_all("div", {'class': self.__OUTER_CLASS_INFO}, limit=2)
         # outer_div[0] is left-hand info box at the top of the page, ie the map and map author
         inner_map_a = outer_div[0].find_next("a")
         map_code = inner_map_a["href"][6:]
-        return map_code
+        return GeoguessrMap(self.__device, map_code)
         
     @property
     def time_limit(self) -> Time:
@@ -256,9 +265,9 @@ class GeoguessrResult:
 
     def __get_distance(self, div) -> Distance:
         inner_div = div.find("div", {'class': self.__INNER_CLASS_DETAILS})
-        match = re.match(r'(\d+) (m|km|yd|miles)', inner_div.text)
+        match = re.match(r'([\d,]+) (m|km|yd|miles)', inner_div.text)
         units = next(x for x in Units if x.value == match.group(2))
-        return Distance(int(match.group(1)), units=units)
+        return Distance(int(match.group(1).replace(',', '')), units=units)
 
     def __get_time(self, div) -> Time:
         inner_div = div.find("div", {'class': self.__INNER_CLASS_DETAILS})

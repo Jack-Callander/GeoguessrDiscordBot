@@ -14,9 +14,9 @@ class ChromeDevice(JSDevice):
         
         chrome_options = webdriver.ChromeOptions()
         chrome_options.add_argument("--headless")
-        driver = webdriver.Chrome(self.__path, options=chrome_options)
+        driver = webdriver.Chrome(options=chrome_options)
         driver.get(url)
-        html = driver.execute_script("return document.body.innerHTML;")
+        html = driver.page_source
         driver.quit()
 
         self.cache[url] = html

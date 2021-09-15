@@ -1,8 +1,10 @@
+from typing import Reversible
 from src import ChromeDevice, Distance, GeoguessrResult, Rules, Time, Units
 
 TEST_RUN_1 = 'eOpI74g7FUbUOtkt'
 TEST_RUN_2 = 'F2YjiBJYYh81l3gE'
 TEST_RUN_3 = 'bBbTwb9T8uc6jOhR'
+TEST_RUN_4 = 'M1MOmkoi8ouEd4kI'
 
 assert Distance(50) + Distance(20) == Distance(70)
 assert Distance(50) - Distance(20) == Distance(30)
@@ -52,3 +54,10 @@ assert result.time == Time(0, 37)
 assert result.map == "famous-places"
 assert result.time_limit == Time(0, 50)
 assert result.rules == Rules.DEFAULT
+
+result = GeoguessrResult(device, TEST_RUN_4)
+assert result.score == 24958
+assert result.time == Time(3, 0)
+assert result.map == "5d0ce72c8b19a91fe05aa7a8"
+assert result.time_limit == Time(2, 0)
+assert result.rules == Rules.NO_MOVE

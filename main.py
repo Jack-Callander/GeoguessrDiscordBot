@@ -1,43 +1,14 @@
-from genericpath import isfile
-from src.Challenge import Challenge
-from src import ChromeDevice, Distance, GeoguessrMap, GeoguessrResult, Rules, Time, Units
+from src import ChromeDevice, GeoguessrResult, Rules, Time, GeoguessrMap, Challenge, Database, Command, CommandList
 import discord
 import os.path
 import re
 
 device = ChromeDevice('D:/chromedriver.exe')
-
 client = discord.Client()
 
-class Command:
-    def __init__(self, command: str, description: str, usage: str, error: str = "Command error"):
-        self.command = command
-        self.description = description
-        self.usage = usage
-        self.error = error
-    
-    @property
-    def token_count(self) -> int:
-        return len(self.command.strip().split(' '))
-
-class CommandList:
-    def __init__(self):
-        self.list = []
-        self.prefix = "/geo "
-    
-    def append(self, cm: Command):
-        self.list.append(cm)
-    
-    def __str__(self) -> str:
-        out = "**Command List:**\n"
-        for cm in self.list:
-            out += "    " + self.prefix + cm.usage + "\n"
-        return out
-    
-    @property
-    def token_count(self) -> int:
-        return len(self.prefix.strip().split(' '))
-
+# Record Tables
+db = Database()
+db.add_table(Challenge(GeoguessrMap(device, 'famous-places'), Rules.NO_MOVE, time_limit=Time(2, 0)))
 
 # Commands
 str_tab = '    '

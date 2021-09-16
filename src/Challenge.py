@@ -1,6 +1,6 @@
 from dataclasses import dataclass
-from src.GeoguessrMap import GeoguessrMap
 from src.GeoguessrResult import GeoguessrResult, Rules, Time
+from src.GeoguessrMap import GeoguessrMap
 
 @dataclass
 class Challenge:
@@ -8,6 +8,13 @@ class Challenge:
     rules: Rules
     time_limit: Time = None
     point_target: int = 0
+    
+    def __eq__(self, other) -> bool:
+        if self is other:
+            return True
+        if not isinstance(other, Challenge):
+            return False
+        return self.map == other.map and self.rules == other.rules and self.time_limit == other.time_limit and self.point_target == other.point_target
 
     def is_applicable(self, result: GeoguessrResult) -> bool:
         if self.map != result.map:

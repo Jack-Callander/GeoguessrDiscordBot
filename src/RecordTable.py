@@ -54,6 +54,13 @@ class RecordTable:
         self.__max_record_holders = max_record_holders
         self.__holders = []
     
+    def __eq__(self, other) -> bool:
+        if self is other:
+            return True
+        if not isinstance(other, RecordTable):
+            return False
+        return self.__challenge == other.__challenge
+    
     @property
     def challenge(self) -> Challenge:
         return copy(self.__challenge)

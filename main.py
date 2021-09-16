@@ -30,7 +30,7 @@ class CommandList:
     def __str__(self) -> str:
         out = "**Command List:**\n"
         for cm in self.list:
-            out += "    " + cm.usage + "\n"
+            out += "    " + self.prefix + cm.usage + "\n"
         return out
     
     @property

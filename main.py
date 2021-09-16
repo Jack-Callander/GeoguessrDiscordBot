@@ -64,9 +64,11 @@ async def on_message(message):
         await message.channel.send(cm_list)
         return
     
+    sent_message = None
+    
     # All Commands
     if content.startswith(cm_list.prefix.strip()):
-        await message.channel.send("*Processing request...*")
+        sent_message = await message.channel.send("*Processing request...*")
     else:
         return
     
@@ -75,18 +77,18 @@ async def on_message(message):
         tokens = content.split(' ')
         token_count = cm_list.token_count + cm_submit.token_count
         if len(tokens) != token_count + 1:
-            await message.channel.send(cm_submit.error + ":\n" + str_tab + cm_submit.usage)
+            await sent_message.edit(content=cm_submit.error + ":\n" + str_tab + cm_submit.usage)
             return
         
         try:
             result = GeoguessrResult(device, tokens[token_count])
         except Exception as e:
-            await message.channel.send(cm_submit.error + ":\n" + str_tab + e)
+            await sent_message.edit(content=cm_submit.error + ":\n" + str_tab + e)
             return
             
             
         result = GeoguessrResult(device, tokens[token_count])
-        await message.channel.send("Submission Accepted!\nScore: {0}\nDistance: {1}\nTime: {2}\nMap: {3}\nTime Limit: {4}\nRules: {5}".format(
+        await sent_message.edit(content="Submission Accepted!\nScore: {0}\nDistance: {1}\nTime: {2}\nMap: {3}\nTime Limit: {4}\nRules: {5}".format(
             result.score,
             result.distance,
             result.time,

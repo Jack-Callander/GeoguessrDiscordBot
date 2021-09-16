@@ -16,11 +16,13 @@ cm_list = CommandList()
 cm_submit = Command('submit', 'Submit a record', 'submit <Game Brakdown URL>|<Game Code>', 'Error submitting')
 cm_submitcoop = Command('submitcoop', 'Submit a cooperative record', 'submitcoop <Game Brakdown URL>|<Game Code>', 'Error submitting')
 cm_renounce = Command('renounce', 'Renounce a record or cooperative record', 'renounce <Game Brakdown URL>|<Game Code>', 'Error renouncing')
+cm_challenge_add = Command('challenge add', 'Add a Challenge or Contest category to the highscores page', 'challenge add point|speed <MapID> default|no_move|no_zoom|no_move_no_zoom|no_move_no_pan_no_zoom no_time_limit|<min>_<sec> <SlotsAvailable=3>', 'Error creating challenge')
 cm_help = Command('help', 'Get Help on another command', 'help <Command name>', 'Failed to get help')
 
 cm_list.append(cm_submit)
 cm_list.append(cm_submitcoop)
 cm_list.append(cm_renounce)
+cm_list.append(cm_challenge_add)
 cm_list.append(cm_help)
 
 
@@ -103,6 +105,27 @@ async def on_message(message):
         code = tokens[token_count].split('/')[-1]
         await sent_message.edit(content="**Submission Renonuced!**")
         return
+    
+    # Challenge Add
+    if content.startswith(cm_list.prefix + cm_challenge_add):
+        tokens = content.split(' ')
+        token_count = cm_list.token_count + cm_challenge_add.token_count
+        if len(tokens) != token_count + 5 or len(tokens) != token_count + 4:
+            await sent_message.edit(content=cm_challenge_add.error + ":\n" + str_tab + cm_challenge_add.usage)
+            return
+            
+        max_score_holers = 3
+        if len(tokens) == token_count + 5:
+            max_score_holers = int(tokens[token_count + 4])
+        
+        # TODO
+        
+        await sent_message.edit(content="Challenge Added!")
+        return
+        
+            
+        
+    
     
     # Invalid Command
     await sent_message.edit(content="Unknown Command: *" + content + "*\n" + str_tab + "Type *" + cm_list.prefix.strip() + "* for a list of commands.")

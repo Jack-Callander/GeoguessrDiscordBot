@@ -193,6 +193,10 @@ class GeoguessrResult:
         return rounds
 
     @property
+    def code(self) -> str:
+        return self.__code
+
+    @property
     def score(self) -> int:
         """The total score for the Geoguessr run."""
 

@@ -43,11 +43,14 @@ class CommandList:
 str_tab = '    '
 cm_list = CommandList()
 cm_submit = Command('submit', 'Submit a record', 'submit <Game Brakdown URL>|<Game Code>', 'Error submitting')
+cm_submitcoop = Command('submitcoop', 'Submit a cooperative record', 'submitcoop <Game Brakdown URL>|<Game Code>', 'Error submitting')
+cm_renounce = Command('renounce', 'Renounce a record or cooperative record', 'renounce <Game Brakdown URL>|<Game Code>', 'Error renouncing')
 cm_help = Command('help', 'Get Help on another command', 'help <Command name>', 'Failed to get help')
 
 cm_list.append(cm_submit)
+cm_list.append(cm_submitcoop)
+cm_list.append(cm_renounce)
 cm_list.append(cm_help)
-
 
 
 @client.event
@@ -90,8 +93,8 @@ async def on_message(message):
         
         await sent_message.edit(content="Unknown Command: *" + tokens[token_count] + "*")
     
-    # Submit Command
-    if content.startswith(cm_list.prefix + cm_submit.command):
+    # Submit and SubmitCoop Command
+    if content.startswith(cm_list.prefix + cm_submit.command) or content.startswith(cm_list.prefix + cm_submitcoop.command):
         tokens = content.split(' ')
         token_count = cm_list.token_count + cm_submit.token_count
         if len(tokens) != token_count + 1:
@@ -115,6 +118,18 @@ async def on_message(message):
             result.time_limit,
             result.rules
         ))
+    
+    # Renounce Command
+    if content.startswith(cm_list.prefix + cm_renounce.command):
+        tokens = content.split(' ')
+        token_count = cm_list.token_count + cm_renounce.token_count
+        if len(tokens) != token_count + 1:
+            await sent_message.edit(content=cm_renounce.error + ":\n" + str_tab + cm_renounce.usage)
+            return
+        
+        code = tokens[token_count].split('/')[-1]
+        await sent_message.edit(content="**Submission Renonuced!**")
+    
 
 if (os.path.isfile('.token.txt')):
     f = open(".token.txt", "r")

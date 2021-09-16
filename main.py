@@ -16,13 +16,13 @@ cm_list = CommandList()
 cm_submit = Command('submit', 'Submit a record', 'submit <Game Brakdown URL>|<Game Code>', 'Error submitting')
 cm_submitcoop = Command('submitcoop', 'Submit a cooperative record', 'submitcoop <Game Brakdown URL>|<Game Code>', 'Error submitting')
 cm_renounce = Command('renounce', 'Renounce a record or cooperative record', 'renounce <Game Brakdown URL>|<Game Code>', 'Error renouncing')
-cm_challenge_add = Command('challenge add', 'Add a Challenge or Contest category to the highscores page', 'challenge add point|speed <MapID> default|no_move|no_zoom|no_move_no_zoom|no_move_no_pan_no_zoom no_time_limit|<min>_<sec> <SlotsAvailable=3>', 'Error creating challenge')
+cm_challenge = Command('challenge', 'Add or Remove a Challenge or Contest category to the highscores page', 'challenge add|remove point|speed <MapID> default|no-move|no-zoom|no-move-no-zoom|no-move-no-pan-no-zoom no-time-limit|<min>-<sec> [SlotsAvailable=3]', 'Error creating challenge')
 cm_help = Command('help', 'Get Help on another command', 'help <Command name>', 'Failed to get help')
 
 cm_list.append(cm_submit)
 cm_list.append(cm_submitcoop)
 cm_list.append(cm_renounce)
-cm_list.append(cm_challenge_add)
+cm_list.append(cm_challenge)
 cm_list.append(cm_help)
 
 
@@ -107,16 +107,16 @@ async def on_message(message):
         return
     
     # Challenge Add
-    if content.startswith(cm_list.prefix + cm_challenge_add):
+    if content.startswith(cm_list.prefix + cm_challenge.command):
         tokens = content.split(' ')
-        token_count = cm_list.token_count + cm_challenge_add.token_count
-        if len(tokens) != token_count + 5 or len(tokens) != token_count + 4:
-            await sent_message.edit(content=cm_challenge_add.error + ":\n" + str_tab + cm_challenge_add.usage)
+        token_count = cm_list.token_count + cm_challenge.token_count
+        if len(tokens) != token_count + 6 and len(tokens) != token_count + 5:
+            await sent_message.edit(content=cm_challenge.error + ":\n" + str_tab + cm_challenge.usage)
             return
             
         max_score_holers = 3
-        if len(tokens) == token_count + 5:
-            max_score_holers = int(tokens[token_count + 4])
+        if len(tokens) == token_count + 6:
+            max_score_holers = int(tokens[token_count + 5])
         
         # TODO
         

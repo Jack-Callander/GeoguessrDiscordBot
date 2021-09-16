@@ -1,5 +1,4 @@
-from src.Challenge import Challenge
-from src import ChromeDevice, Distance, GeoguessrMap, GeoguessrResult, Rules, Time, Units
+from src import Challenge, ChromeDevice, Distance, GeoguessrMap, GeoguessrResult, Player, Rules, Time, Units
 
 device = ChromeDevice('D:/chromedriver.exe')
 

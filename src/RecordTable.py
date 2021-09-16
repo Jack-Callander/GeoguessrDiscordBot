@@ -64,7 +64,7 @@ class RecordTable:
     
     @property
     def holders(self) -> List[Record]:
-        return self.__holders.copy()
+        return sorted(self.__holders.copy(), reverse=True)
 
     def update(self, player: Player, result: GeoguessrResult) -> bool:
         holder = None
@@ -78,6 +78,5 @@ class RecordTable:
         
         self.__holders = [x for x in self.holders if x.player != player]
         self.__holders.append(holder)
-        self.__holders.sort()
         
         return True

@@ -43,8 +43,10 @@ class CommandList:
 str_tab = '    '
 cm_list = CommandList()
 cm_submit = Command('submit', 'Submit a record', 'submit <Game Brakdown URL>|<Game Code>', 'Error submitting')
+cm_help = Command('help', 'Get Help on another command', 'help <Command name>', 'Failed to get help')
 
 cm_list.append(cm_submit)
+cm_list.append(cm_help)
 
 
 
@@ -73,6 +75,21 @@ async def on_message(message):
     else:
         return
     
+    # Help Command
+    if content.startswith(cm_list.prefix + cm_help.command):
+        tokens = content.split(' ')
+        token_count = cm_list.token_count + cm_help.token_count
+        if len(tokens) != token_count + 1:
+            await sent_message.edit(content=cm_help.error + ":\n" + str_tab + cm_help.usage)
+            return
+        
+        for cm in cm_list.list:
+            if (cm.command == tokens[token_count]):
+                await sent_message.edit(content="**Command Help**:\n" + str_tab + "Name: *" + cm.command + "*\n" + str_tab + "Desc: *" + cm.description + "*\n" + str_tab + "Usage: *" + cm.usage + "*")
+                return
+        
+        await sent_message.edit(content="Unknown Command: *" + tokens[token_count] + "*")
+    
     # Submit Command
     if content.startswith(cm_list.prefix + cm_submit.command):
         tokens = content.split(' ')
@@ -81,15 +98,16 @@ async def on_message(message):
             await sent_message.edit(content=cm_submit.error + ":\n" + str_tab + cm_submit.usage)
             return
         
+        code = tokens[token_count].split('/')[-1]
+        
+        result = None
         try:
-            result = GeoguessrResult(device, tokens[token_count])
+            result = GeoguessrResult(device, code)
         except Exception as e:
-            await sent_message.edit(content=cm_submit.error + ":\n" + str_tab + e)
+            await sent_message.edit(content=cm_submit.error + ":\n" + str_tab + str(e))
             return
             
-            
-        result = GeoguessrResult(device, tokens[token_count])
-        await sent_message.edit(content="Submission Accepted!\nScore: {0}\nDistance: {1}\nTime: {2}\nMap: {3}\nTime Limit: {4}\nRules: {5}".format(
+        await sent_message.edit(content="**Submission Accepted!**\nScore: {0}\nDistance: {1}\nTime: {2}\nMap: {3}\nTime Limit: {4}\nRules: {5}".format(
             result.score,
             result.distance,
             result.time,

@@ -177,6 +177,8 @@ class GeoguessrResult:
     def __init__(self, device: JSDevice, code: str):
         self.__device = device
         self.__code = code
+        self.__html = None
+        self.__get_html()
 
     def get_rounds(self) -> List[Round]:
         """Gets a list of details about each round in the Geoguessr run."""
@@ -259,23 +261,25 @@ class GeoguessrResult:
         return r
     
     def __get_html(self) -> str:
-        try:
-            html = self.__device.fetch_html(self.__URL_PREFIX + self.__code)
-        except:
-            raise Exception("Failed to connect to Link provided.")
-        else:
-            soup = BeautifulSoup(html, 'html.parser')
-            h1s = soup.find_all("h1")
-            sidebar_div = soup.find("div", {'class': self.__SIDEBAR_DIV_CLASS})
-            
-            has_game_breakdown = False
-            for h1 in h1s:
-                if (h1.text == self.__GAME_BREAKDOWN):
-                    has_game_breakdown = True
-                    
-            if not sidebar_div or not has_game_breakdown:
-                raise Exception("Failed to load Geoguessr site.")
-            return html
+        if not self.__html:
+            try:
+                html = self.__device.fetch_html(self.__URL_PREFIX + self.__code)
+            except:
+                raise Exception("Failed to connect to Link provided.")
+            else:
+                soup = BeautifulSoup(html, 'html.parser')
+                h1s = soup.find_all("h1")
+                sidebar_div = soup.find("div", {'class': self.__SIDEBAR_DIV_CLASS})
+                
+                has_game_breakdown = False
+                for h1 in h1s:
+                    if (h1.text == self.__GAME_BREAKDOWN):
+                        has_game_breakdown = True
+                        
+                if not sidebar_div or not has_game_breakdown:
+                    raise Exception("Failed to load Geoguessr site.")
+                self.__html = html
+        return self.__html
 
     def __get_score(self, div) -> int:
         score = div.find("div", {'class': self.__INNER_CLASS_SCORE})

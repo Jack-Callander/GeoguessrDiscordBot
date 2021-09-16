@@ -10,6 +10,10 @@ class GeoguessrMap:
         if not isinstance(other, GeoguessrMap):
             return False
         return self.__code == other.__code
+    
+    def __str__(self) -> str:
+        # TODO return the maps name
+        return self.__code
 
     @property
     def name(self):

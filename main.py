@@ -1,7 +1,8 @@
+from genericpath import isfile
 from src.Challenge import Challenge
 from src import ChromeDevice, Distance, GeoguessrMap, GeoguessrResult, Rules, Time, Units
 import discord
-import os
+import os.path
 import re
 
 device = ChromeDevice('D:/chromedriver.exe')
@@ -97,5 +98,9 @@ async def on_message(message):
             result.rules
         ))
 
-client.run('ODg3MjU1MTU3ODk5OTIzNTA2.YUBewg.caQmr75n1OJ8W8q8TipFrZfVtUs')
-#client.run(os.environ['TOKEN'])
+if (os.path.isfile('.token.txt')):
+    f = open(".token.txt", "r")
+    token = f.read()
+    client.run(token)
+else:
+    client.run(os.environ['TOKEN'])

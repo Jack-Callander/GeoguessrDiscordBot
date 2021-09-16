@@ -22,6 +22,7 @@ class Command:
 class CommandList:
     def __init__(self):
         self.list = []
+        self.prefix = "/geo "
     
     def append(self, cm: Command):
         self.list.append(cm)
@@ -31,16 +32,17 @@ class CommandList:
         for cm in self.list:
             out += "    " + cm.usage + "\n"
         return out
-        
+    
+    @property
+    def token_count(self) -> int:
+        return len(self.prefix.strip().split(' '))
 
 
 # Commands
 str_tab = '    '
 cm_list = CommandList()
-cm_prefix = Command('/geo ', 'Command Prefix', '/geo')
-cm_submit = Command('submit', 'Submit a record', cm_prefix.command + 'submit <Game Brakdown URL>|<Game Code>', 'Error submitting')
+cm_submit = Command('submit', 'Submit a record', 'submit <Game Brakdown URL>|<Game Code>', 'Error submitting')
 
-cm_list.append(cm_prefix)
 cm_list.append(cm_submit)
 
 
@@ -58,20 +60,20 @@ async def on_message(message):
     content = re.sub(r' +', ' ', message.content.strip())
     
     # Command List (produced by only typing the command prefix)
-    if content == cm_prefix.command.strip():
+    if content == cm_list.prefix.strip():
         await message.channel.send(cm_list)
         return
     
     # All Commands
-    if content.startswith(cm_prefix.command.strip()):
+    if content.startswith(cm_list.prefix.strip()):
         await message.channel.send("*Processing request...*")
     else:
         return
     
     # Submit Command
-    if content.startswith(cm_prefix.command + cm_submit.command):
+    if content.startswith(cm_list.prefix + cm_submit.command):
         tokens = content.split(' ')
-        token_count = cm_prefix.token_count + cm_submit.token_count
+        token_count = cm_list.token_count + cm_submit.token_count
         if len(tokens) != token_count + 1:
             await message.channel.send(cm_submit.error + ":\n" + str_tab + cm_submit.usage)
             return

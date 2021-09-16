@@ -92,6 +92,7 @@ async def on_message(message):
                 return
         
         await sent_message.edit(content="Unknown Command: *" + tokens[token_count] + "*")
+        return
     
     # Submit and SubmitCoop Command
     if content.startswith(cm_list.prefix + cm_submit.command) or content.startswith(cm_list.prefix + cm_submitcoop.command):
@@ -118,6 +119,7 @@ async def on_message(message):
             result.time_limit,
             result.rules
         ))
+        return
     
     # Renounce Command
     if content.startswith(cm_list.prefix + cm_renounce.command):
@@ -129,6 +131,10 @@ async def on_message(message):
         
         code = tokens[token_count].split('/')[-1]
         await sent_message.edit(content="**Submission Renonuced!**")
+        return
+    
+    # Invalid Command
+    await sent_message.edit(content="Unknown Command: *" + content + "*\n" + str_tab + "Type *" + cm_list.prefix.strip() + "* for a list of commands.")
     
 
 if (os.path.isfile('.token.txt')):

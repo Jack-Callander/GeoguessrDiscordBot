@@ -156,9 +156,22 @@ class Rules(Enum):
     NO_ZOOM = 2
     NO_MOVE_NO_ZOOM = 3
     NO_MOVE_NO_PAN_NO_ZOOM = 4
-
+    
     def __lt__(self, other):
         return self.value < other.value
+    
+    def __str__(self) -> str:
+        if self.value == Rules.DEFAULT.value:
+            return "Default"
+        elif self.value == Rules.NO_MOVE.value:
+            return "No Move"
+        elif self.value == Rules.NO_ZOOM.value:
+            return "No Zoom"
+        elif self.value == Rules.NO_MOVE_NO_ZOOM.value:
+            return "No Move, No Zoom"
+        elif self.value == Rules.NO_MOVE_NO_PAN_NO_ZOOM.value:
+            return "No Move, No Pan, No Zoom"
+        return "Unknown"
 
 class GeoguessrResult:
 

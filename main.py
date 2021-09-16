@@ -19,8 +19,15 @@ async def on_message(message):
     if message.content.startswith('/submit'):
         tokens = message.content.split(' ')
         if len(tokens) == 1:
-            # Reply with usage error
+            await message.channel.send("**Submission Error**\nPlease submit like so:\n    /submit https://www.geoguessr.com/results/ABCDEFG1234567\n    /submit ABCDEFG1234567")
             return
+        
+        try:
+            result = GeoguessrResult(device, tokens[1])
+        except Exception as e:
+            await message.channel.send("**Submission Error**\n" + e)
+            return
+            
             
         result = GeoguessrResult(device, tokens[1])
         await message.channel.send("Submission Accepted!\nScore: {0}\nDistance: {1}\nTime: {2}\nMap: {3}\nTime Limit: {4}\nRules: {5}".format(
@@ -32,4 +39,5 @@ async def on_message(message):
             result.rules
         ))
 
-client.run(os.environ['TOKEN'])
+client.run('ODg3MjU1MTU3ODk5OTIzNTA2.YUBewg.caQmr75n1OJ8W8q8TipFrZfVtUs')
+#client.run(os.environ['TOKEN'])

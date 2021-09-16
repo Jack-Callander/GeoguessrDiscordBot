@@ -23,4 +23,3 @@ class Challenge:
         if self.point_target > 0 and self.point_target > result.score:
             return False
         return True
-    

@@ -22,7 +22,7 @@ class ChromeDevice(JSDevice):
             chrome_options.add_argument('--disable-gpu')
             driver = webdriver.Chrome(options=chrome_options)
         else:
-            driver = webdriver.Chrome("D:/chromedriver.exe", options=chrome_options)
+            driver = webdriver.Chrome(self.__path, options=chrome_options)
             
         driver.get(url)
         html = driver.page_source

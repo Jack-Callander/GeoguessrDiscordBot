@@ -20,21 +20,25 @@ class Database:
     def tables(self):
         return self.record_tables
     
-    def add_table(self, challenge: Challenge, max_record_holders: int = 3):
+    def add_table(self, challenge: Challenge, max_record_holders: int = 3) -> bool:
         record_table = RecordTable(challenge, max_record_holders)
         if record_table in self.record_tables:
             print("Challenge already exists")
-            return
+            return False
         self.record_tables.append(record_table)
         self.__save()
+        return True
         
-    def remove_table(self, challenge: Challenge):
+    def remove_table(self, challenge: Challenge) -> bool:
         rt = RecordTable(challenge)
+        found = False
         for table in self.record_tables:
             if (table == rt):
                 self.record_tables.remove(table)
+                found = True
                 break
         self.__save()
+        return found
     
     def __save(self):
         print("saving state...", end="")

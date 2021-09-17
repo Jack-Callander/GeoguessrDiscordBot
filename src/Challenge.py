@@ -1,12 +1,27 @@
 from dataclasses import dataclass
+from enum import Enum
 from src.GeoguessrActivity import Rules, Time
 from src.GeoguessrResult import GeoguessrResult
 from src.GeoguessrMap import GeoguessrMap
+
+class ChallengeType(Enum):
+    POINT = 0
+    STREAK = 1
+    SPEED = 2
+    
+    def __str__(self) -> str:
+        if self.value == ChallengeType.POINT.value:
+            return "Point-Based"
+        if self.value == ChallengeType.STREAK.value:
+            return "Streak"
+        if self.value == ChallengeType.SPEED.value:
+            return "Speedrun"
 
 @dataclass
 class Challenge:
     map: GeoguessrMap
     rules: Rules
+    type: ChallengeType
     time_limit: Time = None
     point_target: int = 0
     

@@ -1,4 +1,4 @@
-from src import ChromeDevice, GeoguessrResult, Rules, Time, GeoguessrMap, Challenge, Database, Command, CommandList
+from src import ChromeDevice, GeoguessrResult, Rules, Time, GeoguessrMap, Challenge, ChallengeType, Database, Command, CommandList
 import discord
 import os.path
 import re
@@ -35,24 +35,26 @@ async def on_message(message):
         return
     
     # New Received Message Content
-    content = re.sub(r' +', ' ', message.content.strip())
+    command = re.sub(r' +', ' ', message.content.strip())
     
     # Command List (produced by only typing the command prefix)
-    if content == cm_list.prefix.strip():
+    if command == cm_list.prefix.strip():
         await message.channel.send(cm_list)
         return
     
     sent_message = None
     
     # All Commands
-    if content.startswith(cm_list.prefix.strip()):
+    if command.startswith(cm_list.prefix.strip()):
         sent_message = await message.channel.send("*Processing request...*")
     else:
         return
     
+    print("Processing: " + command)
+    
     # Help Command
-    if content.startswith(cm_list.prefix + cm_help.command):
-        tokens = content.split(' ')
+    if command.startswith(cm_list.prefix + cm_help.command):
+        tokens = command.split(' ')
         token_count = cm_list.token_count + cm_help.token_count
         if len(tokens) != token_count + 1:
             await sent_message.edit(content=cm_help.error + ":\n" + str_tab + cm_help.usage)
@@ -67,8 +69,8 @@ async def on_message(message):
         return
     
     # Submit and SubmitCoop Command
-    if content.startswith(cm_list.prefix + cm_submit.command) or content.startswith(cm_list.prefix + cm_submitcoop.command):
-        tokens = content.split(' ')
+    if command.startswith(cm_list.prefix + cm_submit.command) or command.startswith(cm_list.prefix + cm_submitcoop.command):
+        tokens = command.split(' ')
         token_count = cm_list.token_count + cm_submit.token_count
         if len(tokens) != token_count + 1:
             await sent_message.edit(content=cm_submit.error + ":\n" + str_tab + cm_submit.usage)
@@ -92,8 +94,8 @@ async def on_message(message):
         return
     
     # Renounce Command
-    if content.startswith(cm_list.prefix + cm_renounce.command):
-        tokens = content.split(' ')
+    if command.startswith(cm_list.prefix + cm_renounce.command):
+        tokens = command.split(' ')
         token_count = cm_list.token_count + cm_renounce.token_count
         if len(tokens) != token_count + 1:
             await sent_message.edit(content=cm_renounce.error + ":\n" + str_tab + cm_renounce.usage)
@@ -104,12 +106,12 @@ async def on_message(message):
         return
     
     # Challenge Add
-    if content.startswith(cm_list.prefix + cm_challenge.command):
-        tokens = content.split(' ')
+    if command.startswith(cm_list.prefix + cm_challenge.command):
+        tokens = command.split(' ')
         token_count = cm_list.token_count + cm_challenge.token_count
-        error_message = content=cm_challenge.error + ":\n" + str_tab
+        error_message = cm_challenge.error + ":\n" + str_tab
         if len(tokens) != token_count + 6 and len(tokens) != token_count + 5:
-            await sent_message.edit(error_message)
+            await sent_message.edit(content=error_message + cm_challenge.usage)
             return
             
         max_score_holers = 3
@@ -117,55 +119,94 @@ async def on_message(message):
             try:
                 max_score_holers = int(tokens[token_count + 5])
             except:
-                await sent_message.edit(error_message + cm_challenge.usage)
+                await sent_message.edit(content=error_message + cm_challenge.usage)
                 return
         
         # Execute Command
+        challenge = None
         
-        if not re.match(r'/geo challenge (add|remove)'):
-            await sent_message.edit(error_message + "Please specify *add* or *remove* first")
+        # Add Remove
+        print(command)
+        match_add = re.search(r' (add|remove)( |$)', command)
+        if not match_add:
+            await sent_message.edit(content=error_message + "Please specify *add* or *remove*")
             return
-        add = tokens[token_count] == 'add'
+        add = match_add.group(1) == "add"
         
-        match_mode = re.match(r'.* mode=(point|speed|streak)( |$)')
-        if not match_mode:
-            await sent_message.edit(error_message + "Please specify a valid mode. E.g. *mode=point*")
+        # Max Record Holders
+        match_holders = re.match(r' mrh=([1-9])( |$)', command)
+        holders = 3
+        if match_holders:
+            holders = int(match_holders.group(1))
+        
+        # Type
+        match_type = re.search(r' type=(point|speed|streak)( |$)', command)
+        if not match_type:
+            await sent_message.edit(content=error_message + "Please specify a valid type. E.g. *type=point*")
             return
-        mode = match_mode.group(1)
+        type = ChallengeType.POINT
+        if (match_type.group(1) == "speed"):
+            type = ChallengeType.SPEED
+        if (match_type.group(1) == "streak"):
+            type = ChallengeType.STREAK
         
         
-        
-        
-        match = re.match(r'/geo challenge (add|remove) (point|speed) map=[a-zA-Z0-9]+ (default|no-move|no-zoom|no-move-no-zoom|no-move-no-pan-no-zoom) (no-time-limit|[0-9]-([1-5]0)|[1-9]-([0-5]0)|10-00)($| )([1-9]$)', content)
-        if not match:
-            await sent_message.edit(error_message)
+        if type == "streak":
+            await sent_message.edit(content=error_message + "Not implemented soz")
             return
         
-        # TODO: Check Map exists
+        # Map
+        match_map = re.search(r' map=([a-zA-Z0-9]+)( |$)', command)
+        if not match_map:
+            await sent_message.edit(content=error_message + "Please specify a map code. E.g. *map=ABCdef123567*")
+            return
+        map = match_map.group(1)
         
-        # Execute Command
-        
-        mode = tokens[token_count + 1]
-        map = tokens[token_count + 2]
-        
+        # Rules
+        match_rules = re.search(r' (default|no-move|no-zoom|no-move-no-zoom|no-move-no-pan-no-zoom)( |$)', command)
+        if not match_rules:
+            await sent_message.edit(content=error_message + "Please specify a ruleset. E.g. *no-move*")
+            return
         rules = Rules.DEFAULT
-        if (tokens[token_count + 3] == 'no-move'):
+        if (match_rules.group(1) == 'no-move'):
             rules = Rules.NO_MOVE
-        if (tokens[token_count + 3] == 'no-zoom'):
+        if (match_rules.group(1) == 'no-zoom'):
             rules = Rules.NO_ZOOM
-        if (tokens[token_count + 3] == 'no-move-no-zoom'):
+        if (match_rules.group(1) == 'no-move-no-zoom'):
             rules = Rules.NO_MOVE_NO_ZOOM
-        if (tokens[token_count + 3] == 'no-move-no-pan-no-zoom'):
+        if (match_rules.group(1) == 'no-move-no-pan-no-zoom'):
             rules = Rules.NO_MOVE_NO_PAN_NO_ZOOM
         
-        time_limit = Time(0, 0)
+        # Time Limit
+        if type == ChallengeType.POINT:
+            match_time = re.search(r' (no-time-limit|[0-9]-[1-5]0|[1-9]-[0-5]0|10-00)($| )', command)
+            if not match_time:
+                await sent_message.edit(content=error_message + "Please specify a time limit. E.g. *no-time-limit* or *M-SS* where seconds are a multiple of 10 and *M* is 0 to 10")
+                return
+            string_time = match_time.group(1)
+            time = Time()
+            if (string_time != "no-time-limit"):
+                time = Time(int(string_time.split('-')[0]), int(string_time.split('-')[1]))
+            challenge = Challenge(GeoguessrMap(device, map), rules, type, time_limit=time)
+        
+        # Point
+        if type == ChallengeType.SPEED:
+            await sent_message.edit(content=error_message + "No Speedruns yet soz")
+            return
         
         
-        challenge = Challenge(GeoguessrMap(device, tokens[token_count + 3]), Rules.NO_MOVE, time_limit=Time(2, 0))
+        # Apply
+        if add:
+            if db.add_table(challenge, holders):
+                await sent_message.edit(content="**Challenge Added:**\n" + str_tab + "Map Code: " + str(challenge.map) + "\n" + str_tab + "Type: " + str(challenge.type) + "\n" + str_tab + "Time Limit: " + str(challenge.time_limit) + "\n" + str_tab + "Rules: " + str(challenge.rules) + "\n" + str_tab + "Max Record Holders: " + str(holders))
+            else:
+                await sent_message.edit(content="*Challenge Specified already exists!*")
+        else:
+            if db.remove_table(challenge):
+                await sent_message.edit(content="*Challenge Removed*")
+            else:
+                await sent_message.edit(content="*Specified Challenge not found*")
         
-        db.remove_table()
-        
-        await sent_message.edit(content="Challenge Added!")
         return
         
             
@@ -173,7 +214,7 @@ async def on_message(message):
     
     
     # Invalid Command
-    await sent_message.edit(content="Unknown Command: *" + content + "*\n" + str_tab + "Type *" + cm_list.prefix.strip() + "* for a list of commands.")
+    await sent_message.edit(content="Unknown Command: *" + command + "*\n" + str_tab + "Type *" + cm_list.prefix.strip() + "* for a list of commands.")
     
 
 if (os.path.isfile('.token.txt')):

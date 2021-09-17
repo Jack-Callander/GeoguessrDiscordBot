@@ -1,4 +1,4 @@
-from src.Challenge import Challenge
+from src.Challenge import Challenge, ChallengeType
 from src.ChromeDevice import ChromeDevice
 from src.Command import CommandList, Command
 from src.Database import Database

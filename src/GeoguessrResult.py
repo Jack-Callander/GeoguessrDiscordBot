@@ -2,6 +2,7 @@ import re
 from typing import List
 from bs4 import BeautifulSoup
 from src.GeoguessrMap import GeoguessrMap
+from src.GeoguessrPage import GeoguessrPage, Rules
 from src.JSDevice import JSDevice
 from dataclasses import dataclass
 from enum import Enum
@@ -150,32 +151,7 @@ class Round:
             return False
         return True
 
-class Rules(Enum):
-    DEFAULT = 0
-    NO_MOVE = 1
-    NO_ZOOM = 2
-    NO_MOVE_NO_ZOOM = 3
-    NO_MOVE_NO_PAN_NO_ZOOM = 4
-    
-    def __lt__(self, other):
-        return self.value < other.value
-    
-    def __str__(self) -> str:
-        if self.value == Rules.DEFAULT.value:
-            return "Default"
-        elif self.value == Rules.NO_MOVE.value:
-            return "No Move"
-        elif self.value == Rules.NO_ZOOM.value:
-            return "No Zoom"
-        elif self.value == Rules.NO_MOVE_NO_ZOOM.value:
-            return "No Move, No Zoom"
-        elif self.value == Rules.NO_MOVE_NO_PAN_NO_ZOOM.value:
-            return "No Move, No Pan, No Zoom"
-        return "Unknown"
-
-class GeoguessrResult:
-
-    __URL_PREFIX = 'https://www.geoguessr.com/results/'
+class GeoguessrResult(GeoguessrPage):
 
     __OUTER_CLASS_ROUND = 'results-highscore__guess-cell--round'
     __OUTER_CLASS_TOTAL = 'results-highscore__guess-cell--total'
@@ -183,21 +159,15 @@ class GeoguessrResult:
 
     __INNER_CLASS_SCORE = 'results-highscore__guess-cell-score'
     __INNER_CLASS_DETAILS = 'results-highscore__guess-cell-details'
-    
-    __SIDEBAR_DIV_CLASS = 'default-sidebar-content'
-    __GAME_BREAKDOWN = 'Game breakdown'
 
     def __init__(self, device: JSDevice, code: str):
-        self.__device = device
-        self.__code = code
-        self.__html = None
-        self.__get_html()
+        super().__init__(device, code)
 
     def get_rounds(self) -> List[Round]:
         """Gets a list of details about each round in the Geoguessr run."""
         
         rounds = []
-        soup = BeautifulSoup(self.__get_html(), 'html.parser')
+        soup = BeautifulSoup(self.html, 'html.parser')
         for round_div in soup.find_all("div", {'class': self.__OUTER_CLASS_ROUND}):
             score = self.__get_score(round_div)
             distance = self.__get_distance(round_div)
@@ -206,14 +176,10 @@ class GeoguessrResult:
         return rounds
 
     @property
-    def code(self) -> str:
-        return self.__code
-
-    @property
     def score(self) -> int:
         """The total score for the Geoguessr run."""
 
-        soup = BeautifulSoup(self.__get_html(), 'html.parser')
+        soup = BeautifulSoup(self.html, 'html.parser')
         total_div = soup.find("div", {'class': self.__OUTER_CLASS_TOTAL})
         return self.__get_score(total_div)
 
@@ -221,7 +187,7 @@ class GeoguessrResult:
     def distance(self) -> Distance:
         """The sum of all the distances in the Geoguessr run."""
 
-        soup = BeautifulSoup(self.__get_html(), 'html.parser')
+        soup = BeautifulSoup(self.html, 'html.parser')
         total_div = soup.find("div", {'class': self.__OUTER_CLASS_TOTAL})
         return self.__get_distance(total_div)
     
@@ -229,7 +195,7 @@ class GeoguessrResult:
     def time(self) -> Time:
         """The total time taken to complete the Geoguessr run."""
 
-        soup = BeautifulSoup(self.__get_html(), 'html.parser')
+        soup = BeautifulSoup(self.html, 'html.parser')
         total_div = soup.find("div", {'class': self.__OUTER_CLASS_TOTAL})
         return self.__get_time(total_div)
     
@@ -237,7 +203,7 @@ class GeoguessrResult:
     def map(self) -> str:
         """The map the Geoguessr run was in."""
     
-        soup = BeautifulSoup(self.__get_html(), 'html.parser')
+        soup = BeautifulSoup(self.html, 'html.parser')
         outer_div = soup.find_all("div", {'class': self.__OUTER_CLASS_INFO}, limit=2)
         # outer_div[0] is left-hand info box at the top of the page, ie the map and map author
         inner_map_a = outer_div[0].find_next("a")
@@ -248,7 +214,7 @@ class GeoguessrResult:
     def time_limit(self) -> Time:
         """The time limit of the Geoguessr run (or `Time.zero()` if there is no time limit)."""
     
-        soup = BeautifulSoup(self.__get_html(), 'html.parser')
+        soup = BeautifulSoup(self.html, 'html.parser')
         outer_div = soup.find_all("div", {'class': self.__OUTER_CLASS_INFO}, limit=2)
         # outer_div[1] is right-hand info box at the top of the page, ie the time limit and rules
         inner_info_p = outer_div[1].find_next("p")
@@ -258,7 +224,7 @@ class GeoguessrResult:
     def rules(self) -> Rules:
         """The movement rules that the Geoguessr run was played with."""
     
-        soup = BeautifulSoup(self.__get_html(), 'html.parser')
+        soup = BeautifulSoup(self.html, 'html.parser')
         outer_div = soup.find_all("div", {'class': self.__OUTER_CLASS_INFO}, limit=2)
         # outer_div[1] is right-hand info box at the top of the page, ie the time limit and rules
         inner_info_p = outer_div[1].find_next("p")
@@ -276,27 +242,6 @@ class GeoguessrResult:
             r = Rules.NO_MOVE
             
         return r
-    
-    def __get_html(self) -> str:
-        if not self.__html:
-            try:
-                html = self.__device.fetch_html(self.__URL_PREFIX + self.__code)
-            except:
-                raise Exception("Failed to connect to Link provided.")
-            else:
-                soup = BeautifulSoup(html, 'html.parser')
-                h1s = soup.find_all("h1")
-                sidebar_div = soup.find("div", {'class': self.__SIDEBAR_DIV_CLASS})
-                
-                has_game_breakdown = False
-                for h1 in h1s:
-                    if (h1.text == self.__GAME_BREAKDOWN):
-                        has_game_breakdown = True
-                        
-                if not sidebar_div or not has_game_breakdown:
-                    raise Exception("Failed to load Geoguessr site.")
-                self.__html = html
-        return self.__html
 
     def __get_score(self, div) -> int:
         score = div.find("div", {'class': self.__INNER_CLASS_SCORE})

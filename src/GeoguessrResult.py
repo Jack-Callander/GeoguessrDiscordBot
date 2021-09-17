@@ -191,7 +191,6 @@ class GeoguessrResult:
         self.__device = device
         self.__code = code
         self.__html = None
-        self.__get_html()
 
     def get_rounds(self) -> List[Round]:
         """Gets a list of details about each round in the Geoguessr run."""

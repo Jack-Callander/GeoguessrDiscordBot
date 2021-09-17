@@ -77,21 +77,20 @@ async def on_message(message):
         
         code = tokens[token_count].split('/')[-1]
         
-        result = None
+        result = GeoguessrResult(device, code)
+        
         try:
-            result = GeoguessrResult(device, code)
+            await sent_message.edit(content="**Submission Accepted!**\nScore: {0}\nDistance: {1}\nTime: {2}\nMap: {3}\nTime Limit: {4}\nRules: {5}".format(
+                result.score,
+                result.distance,
+                result.time,
+                result.map,
+                result.time_limit,
+                result.rules
+            ))
         except Exception as e:
             await sent_message.edit(content=cm_submit.error + ":\n" + str_tab + str(e))
             return
-            
-        await sent_message.edit(content="**Submission Accepted!**\nScore: {0}\nDistance: {1}\nTime: {2}\nMap: {3}\nTime Limit: {4}\nRules: {5}".format(
-            result.score,
-            result.distance,
-            result.time,
-            result.map,
-            result.time_limit,
-            result.rules
-        ))
         return
     
     # Renounce Command

@@ -208,7 +208,7 @@ class GeoguessrResult(GeoguessrPage):
         # outer_div[0] is left-hand info box at the top of the page, ie the map and map author
         inner_map_a = outer_div[0].find_next("a")
         map_code = inner_map_a["href"][6:]
-        return GeoguessrMap(self.__device, map_code)
+        return GeoguessrMap(self.device, map_code)
         
     @property
     def time_limit(self) -> Time:

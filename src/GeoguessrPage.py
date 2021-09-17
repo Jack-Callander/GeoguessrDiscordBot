@@ -42,10 +42,14 @@ class GeoguessrPage(ABC):
         return self.__code
 
     @property
+    def device(self) -> JSDevice:
+        return self.__device    
+
+    @property
     def html(self) -> str:
         if not self.__html:
             try:
-                html = self.__device.fetch_html(self.__URL_PREFIX + self.__code)
+                html = self.device.fetch_html(self.__URL_PREFIX + self.code)
             except:
                 raise Exception("Failed to connect to Link provided.")
             else:

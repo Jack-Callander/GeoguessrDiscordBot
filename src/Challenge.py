@@ -13,7 +13,7 @@ class ChallengeType(Enum):
         if self is other:
             return False
         if not isinstance(other, ChallengeType):
-            raise Exception("Cannot compare ChallengeType type to other type")
+            raise TypeError
         return self.value < other.value
     
     def __str__(self) -> str:
@@ -43,7 +43,7 @@ class Challenge:
         if self is other:
             return False
         if not isinstance(other, Challenge):
-            raise Exception("Cannot compare Challenge type to other type")
+            raise TypeError
         if self.type == other.type:
             if self.map == other.map:
                 if self.rules == other.rules:

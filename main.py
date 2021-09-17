@@ -8,7 +8,6 @@ client = discord.Client()
 
 # Record Tables
 db = Database()
-db.add_table(Challenge(GeoguessrMap(device, 'famous-places'), Rules.NO_MOVE, time_limit=Time(2, 0)))
 
 # Commands
 str_tab = '    '
@@ -76,7 +75,6 @@ async def on_message(message):
             return
         
         code = tokens[token_count].split('/')[-1]
-        
         result = GeoguessrResult(device, code)
         
         try:
@@ -109,15 +107,63 @@ async def on_message(message):
     if content.startswith(cm_list.prefix + cm_challenge.command):
         tokens = content.split(' ')
         token_count = cm_list.token_count + cm_challenge.token_count
+        error_message = content=cm_challenge.error + ":\n" + str_tab
         if len(tokens) != token_count + 6 and len(tokens) != token_count + 5:
-            await sent_message.edit(content=cm_challenge.error + ":\n" + str_tab + cm_challenge.usage)
+            await sent_message.edit(error_message)
             return
             
         max_score_holers = 3
         if len(tokens) == token_count + 6:
-            max_score_holers = int(tokens[token_count + 5])
+            try:
+                max_score_holers = int(tokens[token_count + 5])
+            except:
+                await sent_message.edit(error_message + cm_challenge.usage)
+                return
         
-        # TODO
+        # Execute Command
+        
+        if not re.match(r'/geo challenge (add|remove)'):
+            await sent_message.edit(error_message + "Please specify *add* or *remove* first")
+            return
+        add = tokens[token_count] == 'add'
+        
+        match_mode = re.match(r'.* mode=(point|speed|streak)( |$)')
+        if not match_mode:
+            await sent_message.edit(error_message + "Please specify a valid mode. E.g. *mode=point*")
+            return
+        mode = match_mode.group(1)
+        
+        
+        
+        
+        match = re.match(r'/geo challenge (add|remove) (point|speed) map=[a-zA-Z0-9]+ (default|no-move|no-zoom|no-move-no-zoom|no-move-no-pan-no-zoom) (no-time-limit|[0-9]-([1-5]0)|[1-9]-([0-5]0)|10-00)($| )([1-9]$)', content)
+        if not match:
+            await sent_message.edit(error_message)
+            return
+        
+        # TODO: Check Map exists
+        
+        # Execute Command
+        
+        mode = tokens[token_count + 1]
+        map = tokens[token_count + 2]
+        
+        rules = Rules.DEFAULT
+        if (tokens[token_count + 3] == 'no-move'):
+            rules = Rules.NO_MOVE
+        if (tokens[token_count + 3] == 'no-zoom'):
+            rules = Rules.NO_ZOOM
+        if (tokens[token_count + 3] == 'no-move-no-zoom'):
+            rules = Rules.NO_MOVE_NO_ZOOM
+        if (tokens[token_count + 3] == 'no-move-no-pan-no-zoom'):
+            rules = Rules.NO_MOVE_NO_PAN_NO_ZOOM
+        
+        time_limit = Time(0, 0)
+        
+        
+        challenge = Challenge(GeoguessrMap(device, tokens[token_count + 3]), Rules.NO_MOVE, time_limit=Time(2, 0))
+        
+        db.remove_table()
         
         await sent_message.edit(content="Challenge Added!")
         return

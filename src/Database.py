@@ -29,7 +29,11 @@ class Database:
         self.__save()
         
     def remove_table(self, challenge: Challenge):
-        self.record_tables.remove(RecordTable(Challenge))
+        rt = RecordTable(challenge)
+        for table in self.record_tables:
+            if (table == rt):
+                self.record_tables.remove(table)
+                break
         self.__save()
     
     def __save(self):

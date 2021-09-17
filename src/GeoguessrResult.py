@@ -1,60 +1,12 @@
 import re
 from typing import List
 from bs4 import BeautifulSoup
-from src.GeoguessrMap import GeoguessrMap
-from src.GeoguessrPage import GeoguessrPage, Rules
+from src.GeoguessrActivity import GeoguessrActivity, Time
 from src.JSDevice import JSDevice
 from dataclasses import dataclass
 from enum import Enum
 
 # https://www.geoguessr.com/results/eOpI74g7FUbUOtkt
-
-class Time:
-
-    def __init__(self, mins=0, secs=0):
-        self.minutes = mins
-        self.seconds = secs
-
-    def __str__(self):
-        return f'{self.minutes} min, {self.seconds} sec' if self.minutes > 0 else f'{self.seconds} sec'
-
-    def __eq__(self, other):
-        if self is other:
-            return True
-        if not isinstance(other, Time):
-            return False
-        return self.minutes == other.minutes and self.seconds == other.seconds
-    
-    def __lt__(self, other):
-        if self is other:
-            return False
-        if not isinstance(other, Time):
-            return False
-        if self.minutes > other.minutes:
-            return False
-        if self.minutes == other.minutes and self.seconds >= other.seconds:
-            return False
-        return True
-
-    def __bool__(self):
-        return self.minutes > 0 or self.seconds > 0
-
-    @classmethod
-    def zero(cls):
-        return cls(mins=0, secs=0)
-
-    @classmethod
-    def from_str(cls, str: str) -> 'Time':
-        match = re.search(r'(\d+) min.* (\d+) sec', str)
-        if match:
-            return cls(int(match.group(1)), int(match.group(2)))
-        match = re.search(r'(\d+) min', str)
-        if match:
-            return cls(int(match.group(1)), 0)
-        match = re.search(r'(\d+) sec', str)
-        if match:
-            return cls(0, int(match.group(1)))
-        return cls()
 
 class Units(Enum):
     METRES = 'm'
@@ -151,11 +103,10 @@ class Round:
             return False
         return True
 
-class GeoguessrResult(GeoguessrPage):
+class GeoguessrResult(GeoguessrActivity):
 
     __OUTER_CLASS_ROUND = 'results-highscore__guess-cell--round'
     __OUTER_CLASS_TOTAL = 'results-highscore__guess-cell--total'
-    __OUTER_CLASS_INFO = 'result-info-card__content'
 
     __INNER_CLASS_SCORE = 'results-highscore__guess-cell-score'
     __INNER_CLASS_DETAILS = 'results-highscore__guess-cell-details'
@@ -198,50 +149,6 @@ class GeoguessrResult(GeoguessrPage):
         soup = BeautifulSoup(self.html, 'html.parser')
         total_div = soup.find("div", {'class': self.__OUTER_CLASS_TOTAL})
         return self.__get_time(total_div)
-    
-    @property
-    def map(self) -> str:
-        """The map the Geoguessr run was in."""
-    
-        soup = BeautifulSoup(self.html, 'html.parser')
-        outer_div = soup.find_all("div", {'class': self.__OUTER_CLASS_INFO}, limit=2)
-        # outer_div[0] is left-hand info box at the top of the page, ie the map and map author
-        inner_map_a = outer_div[0].find_next("a")
-        map_code = inner_map_a["href"][6:]
-        return GeoguessrMap(self.device, map_code)
-        
-    @property
-    def time_limit(self) -> Time:
-        """The time limit of the Geoguessr run (or `Time.zero()` if there is no time limit)."""
-    
-        soup = BeautifulSoup(self.html, 'html.parser')
-        outer_div = soup.find_all("div", {'class': self.__OUTER_CLASS_INFO}, limit=2)
-        # outer_div[1] is right-hand info box at the top of the page, ie the time limit and rules
-        inner_info_p = outer_div[1].find_next("p")
-        return Time.from_str(inner_info_p.text)
-    
-    @property
-    def rules(self) -> Rules:
-        """The movement rules that the Geoguessr run was played with."""
-    
-        soup = BeautifulSoup(self.html, 'html.parser')
-        outer_div = soup.find_all("div", {'class': self.__OUTER_CLASS_INFO}, limit=2)
-        # outer_div[1] is right-hand info box at the top of the page, ie the time limit and rules
-        inner_info_p = outer_div[1].find_next("p")
-        no_move = re.match(r'.*No move', inner_info_p.text)
-        no_pan = re.match(r'.*No pan', inner_info_p.text)
-        no_zoom = re.match(r'.*No zoom', inner_info_p.text)
-        r = Rules.DEFAULT
-        if no_move and no_pan and no_zoom:
-            r = Rules.NO_MOVE_NO_PAN_NO_ZOOM
-        elif no_move and no_zoom:
-            r = Rules.NO_MOVE_NO_ZOOM
-        elif no_zoom:
-            r = Rules.NO_ZOOM
-        elif no_move:
-            r = Rules.NO_MOVE
-            
-        return r
 
     def __get_score(self, div) -> int:
         score = div.find("div", {'class': self.__INNER_CLASS_SCORE})

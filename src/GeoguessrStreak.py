@@ -1,8 +1,8 @@
 import re
 from typing import List
 from bs4 import BeautifulSoup
+from src.GeoguessrActivity import GeoguessrActivity
 from src.JSDevice import JSDevice
-from src.GeoguessrPage import GeoguessrPage
 from dataclasses import dataclass
 
 @dataclass
@@ -24,7 +24,7 @@ class StreakItem:
             return False
         return True
 
-class GeoguessrStreak(GeoguessrPage):
+class GeoguessrStreak(GeoguessrActivity):
 
     __RESULT_LIST = "streak-result-list"
     __RESULT_ITEM = "streak-result-list__item"
@@ -62,4 +62,6 @@ class GeoguessrStreak(GeoguessrPage):
 
     @property
     def streak_count(self):
+        """The number of correct guesses in the streak."""
+        
         return len([x for x in self.results if x.valid])

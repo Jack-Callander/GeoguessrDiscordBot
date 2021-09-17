@@ -1,5 +1,6 @@
 from dataclasses import dataclass
-from src.GeoguessrResult import GeoguessrResult, Rules, Time
+from src.GeoguessrActivity import Rules, Time
+from src.GeoguessrResult import GeoguessrResult
 from src.GeoguessrMap import GeoguessrMap
 
 @dataclass

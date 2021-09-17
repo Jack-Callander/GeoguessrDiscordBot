@@ -157,9 +157,9 @@ class GeoguessrResult(GeoguessrActivity):
 
     def __get_distance(self, div) -> Distance:
         inner_div = div.find("div", {'class': self.__INNER_CLASS_DETAILS})
-        match = re.match(r'([\d,]+) (m|km|yd|miles)', inner_div.text)
+        match = re.match(r'([\d,.]+) (m|km|yd|miles)', inner_div.text)
         units = next(x for x in Units if x.value == match.group(2))
-        return Distance(int(match.group(1).replace(',', '')), units=units)
+        return Distance(float(match.group(1).replace(',', '')), units=units)
 
     def __get_time(self, div) -> Time:
         inner_div = div.find("div", {'class': self.__INNER_CLASS_DETAILS})

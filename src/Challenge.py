@@ -9,6 +9,13 @@ class ChallengeType(Enum):
     STREAK = 1
     SPEED = 2
     
+    def __lt__(self, other) -> bool:
+        if self is other:
+            return False
+        if not isinstance(other, ChallengeType):
+            raise Exception("Cannot compare ChallengeType type to other type")
+        return self.value < other.value
+    
     def __str__(self) -> str:
         if self.value == ChallengeType.POINT.value:
             return "Point-Based"
@@ -31,6 +38,28 @@ class Challenge:
         if not isinstance(other, Challenge):
             return False
         return self.map == other.map and self.rules == other.rules and self.time_limit == other.time_limit and self.point_target == other.point_target
+        
+    def __lt__(self, other) -> bool:
+        if self is other:
+            return False
+        if not isinstance(other, Challenge):
+            raise Exception("Cannot compare Challenge type to other type")
+        if self.type == other.type:
+            if self.map == other.map:
+                if self.rules == other.rules:
+                    if self.time_limit != None:
+                        return self.time_limit < other.time_limit
+                    else:
+                        return self.point_target < other.point_target
+                else:
+                    return self.rules < other.rules
+            else:
+                return self.map < other.map
+        else:
+            return self.type < other.type
+
+    def __str__(self) -> str:
+        return str(self.type) + ", Map=" + str(self.map) + ", " + str(self.rules) + ", " + str(self.time_limit) + ", " + str(self.point_target)
 
     def is_applicable(self, result: GeoguessrResult) -> bool:
         if self.map != result.map:

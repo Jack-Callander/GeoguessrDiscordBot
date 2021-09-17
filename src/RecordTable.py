@@ -60,6 +60,13 @@ class RecordTable:
         if not isinstance(other, RecordTable):
             return False
         return self.__challenge == other.__challenge
+        
+    def __lt__(self, other) -> bool:
+        if self is other:
+            return False
+        if not isinstance(other, RecordTable):
+            raise Exception("Cannot compare RecordTable type to other type")
+        return self.challenge < other.challenge
     
     @property
     def challenge(self) -> Challenge:

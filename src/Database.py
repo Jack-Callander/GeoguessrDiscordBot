@@ -26,7 +26,8 @@ class Database:
             print("Challenge already exists")
             return False
         self.record_tables.append(record_table)
-        self.__save()
+        self.record_tables.sort()
+        self.save()
         return True
         
     def remove_table(self, challenge: Challenge) -> bool:
@@ -37,10 +38,10 @@ class Database:
                 self.record_tables.remove(table)
                 found = True
                 break
-        self.__save()
+        self.save()
         return found
     
-    def __save(self):
+    def save(self):
         print("saving state...", end="")
         with open(self.__SAVE_PATH, 'wb') as outp:
             pickle.dump(self.record_tables, outp, pickle.HIGHEST_PROTOCOL)

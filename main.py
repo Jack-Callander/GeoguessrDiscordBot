@@ -1,4 +1,5 @@
-from src import ChromeDevice, GeoguessrResult, Rules, Time, GeoguessrMap, Challenge, ChallengeType, Database, Command, CommandList
+from discord import channel
+from src import ChromeDevice, GeoguessrResult, Rules, Time, GeoguessrMap, Challenge, ChallengeType, Database, Command, CommandList, Player
 import discord
 import os.path
 import re
@@ -15,13 +16,15 @@ cm_list = CommandList()
 cm_submit = Command('submit', 'Submit a record', 'submit <Game Brakdown URL>|<Game Code>', 'Error submitting')
 cm_submitcoop = Command('submitcoop', 'Submit a cooperative record', 'submitcoop <Game Brakdown URL>|<Game Code>', 'Error submitting')
 cm_renounce = Command('renounce', 'Renounce a record or cooperative record', 'renounce <Game Brakdown URL>|<Game Code>', 'Error renouncing')
-cm_challenge = Command('challenge', 'Add or Remove a Challenge or Contest category to the highscores page', 'challenge add|remove point|speed <MapID> default|no-move|no-zoom|no-move-no-zoom|no-move-no-pan-no-zoom no-time-limit|<min>-<sec> [SlotsAvailable=3]', 'Error creating challenge')
+cm_challenge = Command('challenge', 'Add or Remove a Challenge or Contest category to the highscores page', 'challenge add|remove point|speed|streak map=<MapID> default|no-move|no-zoom|no-move-no-zoom|no-move-no-pan-no-zoom no-time-limit|<min(0-10)>-<SS> [SlotsAvailable=3]', 'Error creating challenge')
+cm_highscores = Command('highscores', 'Show the highscores', 'highscores')
 cm_help = Command('help', 'Get Help on another command', 'help <Command name>', 'Failed to get help')
 
 cm_list.append(cm_submit)
 cm_list.append(cm_submitcoop)
 cm_list.append(cm_renounce)
 cm_list.append(cm_challenge)
+cm_list.append(cm_highscores)
 cm_list.append(cm_help)
 
 
@@ -80,7 +83,7 @@ async def on_message(message):
         result = GeoguessrResult(device, code)
         
         try:
-            await sent_message.edit(content="**Submission Accepted!**\nScore: {0}\nDistance: {1}\nTime: {2}\nMap: {3}\nTime Limit: {4}\nRules: {5}".format(
+            await sent_message.edit(content="**Submission Found!**\nScore: {0}\nDistance: {1}\nTime: {2}\nMap: {3}\nTime Limit: {4}\nRules: {5}".format(
                 result.score,
                 result.distance,
                 result.time,
@@ -91,6 +94,13 @@ async def on_message(message):
         except Exception as e:
             await sent_message.edit(content=cm_submit.error + ":\n" + str_tab + str(e))
             return
+        
+        for rt in db.record_tables:
+            if rt.challenge.is_applicable(result):
+                rt.update(Player(message.author.id, message.author.name), result)
+                db.save()
+                await message.channel.send(content="**Submission Satisfies:** " + str(rt.challenge))
+        
         return
     
     # Renounce Command
@@ -209,8 +219,16 @@ async def on_message(message):
         
         return
         
-            
+    # Highscores
+    if command.startswith(cm_list.prefix + cm_highscores.command):
+        out_point = "**Point-Based:**\n"
+        for rt in db.record_tables:
+            out_point += str_tab + str(rt.challenge) + "\n"
+            for record in rt.holders:
+                out_point += str_tab + str_tab + str(record.player.name) + str(record.result.score) + "\n"
+        await sent_message.edit(content=out_point)
         
+        return
     
     
     # Invalid Command

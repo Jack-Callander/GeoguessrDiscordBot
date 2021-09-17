@@ -11,6 +11,14 @@ class GeoguessrMap:
             return False
         return self.__code == other.__code
     
+    def __lt__(self, other):
+        if self is other:
+            return False
+        if not isinstance(other, GeoguessrMap):
+            raise Exception("Cannot compare GeoguessrMap type to other type")
+        # TODO compare the maps name
+        return self.__code < other.__code
+    
     def __str__(self) -> str:
         # TODO return the maps name
         return self.__code

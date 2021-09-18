@@ -49,7 +49,7 @@ class ScoreHolder(Record):
         return s
         
     def get_print(self) -> str:
-        out = "**" + str(self.player) + f'** - *{self.result.score:,}*'
+        out = "**" + str(self.player) + f'** - *[{self.result.score:,}]({self.result.link})*'
         return out
 
 class TimeHolder(Record):

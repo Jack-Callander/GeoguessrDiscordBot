@@ -35,8 +35,8 @@ class GeoguessrStreak(GeoguessrActivity):
     __RESULT_COUNTRY_NAME = "streak-result-list__name-column"
     __RESULT_COUNTRY_SUBTEXT = "streak-result-list__sub-label"
 
-    def __init__(self, device: JSDevice, code: str):
-        super().__init__(device, code)
+    def __init__(self, device: JSDevice, code: str, db):
+        super().__init__(device, code, db)
         self.__results = None
 
     @property

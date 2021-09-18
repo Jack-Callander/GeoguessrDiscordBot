@@ -9,11 +9,12 @@ class Database:
         self.__SAVE_PATH = "save_state.pkl"
     
         self.record_tables = []
+        self.map_names = {}
         
         if os.path.exists(self.__SAVE_PATH):
             print("loading saved state...", end="")
             with open(self.__SAVE_PATH, 'rb') as inp:
-                self.record_tables = pickle.load(inp)
+                [self.record_tables, self.map_names] = pickle.load(inp)
             print("done")
     
     @property
@@ -44,5 +45,5 @@ class Database:
     def save(self):
         print("saving state...", end="")
         with open(self.__SAVE_PATH, 'wb') as outp:
-            pickle.dump(self.record_tables, outp, pickle.HIGHEST_PROTOCOL)
+            pickle.dump([self.record_tables, self.map_names], outp, pickle.HIGHEST_PROTOCOL)
         print("done")

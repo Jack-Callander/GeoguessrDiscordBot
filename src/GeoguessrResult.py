@@ -111,8 +111,8 @@ class GeoguessrResult(GeoguessrActivity):
     __INNER_CLASS_SCORE = 'results-highscore__guess-cell-score'
     __INNER_CLASS_DETAILS = 'results-highscore__guess-cell-details'
 
-    def __init__(self, device: JSDevice, code: str):
-        super().__init__(device, code)
+    def __init__(self, device: JSDevice, code: str, db):
+        super().__init__(device, code, db)
 
     def get_rounds(self) -> List[Round]:
         """Gets a list of details about each round in the Geoguessr run."""

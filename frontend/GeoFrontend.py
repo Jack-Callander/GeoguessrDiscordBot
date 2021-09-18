@@ -45,7 +45,7 @@ class GeoFrontend:
             return
         
         code = tokens[2].split('/')[-1]
-        result = GeoguessrResult(device, code)
+        result = GeoguessrResult(device, code, db)
         
         try:
             await sm.edit(content="**Submission Found!**\nScore: {0}\nDistance: {1}\nTime: {2}\nMap: {3}\nTime Limit: {4}\nRules: {5}".format(
@@ -64,7 +64,7 @@ class GeoFrontend:
             if rt.challenge.is_applicable(result):
                 rt.update(Player(om.author.id, om.author.name), result)
                 db.save()
-                await om.channel.send(content="**Submission Satisfies:** " + str(rt.challenge))
+                await om.channel.send(content="**Submission Satisfies:** " + rt.challenge.get_print())
         
         return
     
@@ -236,7 +236,7 @@ class GeoFrontend:
                 time = Time()
                 if (string_time != "no-time-limit"):
                     time = Time(int(string_time.split('-')[0]), int(string_time.split('-')[1]))
-                challenge = Challenge(GeoguessrMap(device, map), rules, type, time_limit=time)
+                challenge = Challenge(GeoguessrMap(device, map, db), rules, type, time_limit=time)
             
             # Point
             if type == ChallengeType.SPEED:
@@ -247,7 +247,7 @@ class GeoFrontend:
             # Apply
             if add:
                 if db.add_table(challenge, holders):
-                    await sent_message.edit(content="**Challenge Added:**\n" + self.tab + "Map Code: " + str(challenge.map) + "\n" + self.tab + "Type: " + str(challenge.type) + "\n" + self.tab + "Time Limit: " + str(challenge.time_limit) + "\n" + self.tab + "Rules: " + str(challenge.rules) + "\n" + self.tab + "Max Record Holders: " + str(holders))
+                    await sent_message.edit(content="**Challenge Added:**\n" + self.tab + "Map Name: " + str(challenge.map) + "\n" + self.tab + "Type: " + str(challenge.type) + "\n" + self.tab + "Time Limit: " + str(challenge.time_limit) + "\n" + self.tab + "Rules: " + str(challenge.rules) + "\n" + self.tab + "Max Record Holders: " + str(holders))
                 else:
                     await sent_message.edit(content="*Challenge Specified already exists!*")
             else:

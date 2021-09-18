@@ -113,10 +113,15 @@ class GeoguessrActivity(ABC):
     __GAME_BREAKDOWN = 'Game breakdown'
     __OUTER_CLASS_INFO = 'result-info-card__content'
 
-    def __init__(self, device: JSDevice, code: str):
+    def __init__(self, device: JSDevice, code: str, db):
         self.__device = device
         self.__code = code
+        self.__db = db
         self.__html = None
+    
+    @property
+    def link(self) -> str:
+        return self.__URL_PREFIX + self.__code
 
     @property
     def code(self) -> str:
@@ -158,7 +163,7 @@ class GeoguessrActivity(ABC):
         inner_map_a = outer_div[0].find_next("a")
         # TODO: Get map name and author.
         map_code = inner_map_a["href"][6:] if inner_map_a else None
-        return GeoguessrMap(self.device, map_code)
+        return GeoguessrMap(self.device, map_code, self.__db)
 
     @property
     def time_limit(self) -> Time:

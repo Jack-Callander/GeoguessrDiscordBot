@@ -1,8 +1,22 @@
+from bs4 import BeautifulSoup
+
 class GeoguessrMap:
 
-    def __init__(self, device, code: str):
+    def __init__(self, device, code: str, db):
         self.__device = device
         self.__code = code
+        self.__URL_PREFIX = 'https://www.geoguessr.com/maps/'
+        self.__MAP_NAME_H1_CLASS = 'map-block__title'
+        
+        name = None
+        if code in db.map_names:
+            name = db.map_names[code]
+        else:
+            name = self.__fetch_name()
+            db.map_names[code] = name
+            db.save()
+        
+        self.__name = name
     
     def __eq__(self, other):
         if self is other:
@@ -20,11 +34,21 @@ class GeoguessrMap:
         return self.__code < other.__code
     
     def __str__(self) -> str:
-        # TODO return the maps name
-        return self.__code
+        return self.__name
+    
+    def __fetch_name(self):
+        try:
+            html = self.__device.fetch_html(self.__URL_PREFIX + self.__code)
+        except:
+            raise Exception("Failed to connect to Map Link.")
+        else:
+            soup = BeautifulSoup(html, 'html.parser')
+            h1_map_name = soup.find('h1', {'class': self.__MAP_NAME_H1_CLASS})
+            return h1_map_name.text
+            
     
     def get_print(self) -> str:
-        return "Some Geoguessr Map"
+        return str(self)
 
     @property
     def code(self):
@@ -32,7 +56,7 @@ class GeoguessrMap:
 
     @property
     def name(self):
-        # TODO
+        return self.__name
         pass
 
     @property

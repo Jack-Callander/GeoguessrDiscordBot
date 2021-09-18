@@ -7,6 +7,8 @@ from src.JSDevice import JSDevice
 
 class Time:
 
+    STR_TO_TIME_PATTERN = re.compile(r'(?:(\d+) (?:hr|hour)s?(?:,| and)?(?:\s|$))?(?:(\d+) min\w*(?:,| and)?(?:\s|$))?(?:(\d+) sec\w*$)?')
+
     def __init__(self, mins=0, secs=0):
         self.minutes = mins
         self.seconds = secs
@@ -41,8 +43,7 @@ class Time:
 
     @classmethod
     def from_str(cls, text: str) -> 'Time':
-        pattern = r'(?:(\d+) (?:hr|hour)s?(?:,| and)?(?:\s|$))?(?:(\d+) min\w*(?:,| and)?(?:\s|$))?(?:(\d+) sec\w*$)?'
-        match = re.match(pattern, text.strip())
+        match = cls.STR_TO_TIME_PATTERN.match(text.strip())
 
         hours_match = match.group(1)
         mins_match = match.group(2)

@@ -120,3 +120,9 @@ class RecordTable:
         self.__holders.append(holder)
         
         return True
+    
+    def renounce(self, code: str) -> bool:
+        prev_length = len(self.holders)
+        self.__holders = [x for x in self.holders if x.result.code != code]
+        return prev_length != len(self.holders)
+        

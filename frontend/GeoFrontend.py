@@ -39,6 +39,58 @@ class GeoFrontend:
         
         await sm.edit(content="Unknown Command: *" + tokens[2] + "*")
     
+    async def command_submit(self, tokens, sm, om, db, device):
+        if len(tokens) != 3:
+            await sm.edit(content=self.cm_submit.error + ":\n" + self.tab + self.cm_submit.usage)
+            return
+        
+        code = tokens[2].split('/')[-1]
+        result = GeoguessrResult(device, code)
+        
+        try:
+            await sm.edit(content="**Submission Found!**\nScore: {0}\nDistance: {1}\nTime: {2}\nMap: {3}\nTime Limit: {4}\nRules: {5}".format(
+                result.score,
+                result.distance,
+                result.time,
+                result.map,
+                result.time_limit,
+                result.rules
+            ))
+        except Exception as e:
+            await sm.edit(content=self.cm_submit.error + ":\n" + self.tab + str(e))
+            return
+        
+        for rt in db.record_tables:
+            if rt.challenge.is_applicable(result):
+                rt.update(Player(om.author.id, om.author.name), result)
+                db.save()
+                await om.channel.send(content="**Submission Satisfies:** " + str(rt.challenge))
+        
+        return
+    
+    async def command_renounce(self, tokens, sm, om, db):
+        if len(tokens) != 3:
+            await sm.edit(content=self.cm_renounce.error + ":\n" + self.tab + self.cm_renounce.usage)
+            return
+        
+        code = tokens[2].split('/')[-1]
+        found_match = False
+        for rt in db.record_tables:
+            if rt.renounce(code):
+                if not found_match:
+                    found_match = True
+                    await sm.edit(content="**Renouncing matches:**\n")
+                await om.channel.send(content="Removing match: " + rt.challenge.get_print())
+            
+            
+        if found_match:
+            db.save()
+            await om.channel.send(content="Done.")
+        else:
+            await sm.edit(content="No records match *" + code + "*")
+        
+        return
+    
     async def on_message(self, message: str, client: discord.Client, device: ChromeDevice, db: Database):
     
         # New Received Message Content
@@ -64,46 +116,12 @@ class GeoFrontend:
         
         # Submit and SubmitCoop Command
         if command.startswith(self.cm_list.prefix + self.cm_submit.command) or command.startswith(self.cm_list.prefix + self.cm_submitcoop.command):
-            tokens = command.split(' ')
-            token_count = self.cm_list.token_count + self.cm_submit.token_count
-            if len(tokens) != token_count + 1:
-                await sent_message.edit(content=self.cm_submit.error + ":\n" + self.tab + self.cm_submit.usage)
-                return
-            
-            code = tokens[token_count].split('/')[-1]
-            result = GeoguessrResult(device, code)
-            
-            try:
-                await sent_message.edit(content="**Submission Found!**\nScore: {0}\nDistance: {1}\nTime: {2}\nMap: {3}\nTime Limit: {4}\nRules: {5}".format(
-                    result.score,
-                    result.distance,
-                    result.time,
-                    result.map,
-                    result.time_limit,
-                    result.rules
-                ))
-            except Exception as e:
-                await sent_message.edit(content=self.cm_submit.error + ":\n" + self.tab + str(e))
-                return
-            
-            for rt in db.record_tables:
-                if rt.challenge.is_applicable(result):
-                    rt.update(Player(message.author.id, message.author.name), result)
-                    db.save()
-                    await message.channel.send(content="**Submission Satisfies:** " + str(rt.challenge))
-            
+            await self.command_submit(tokens, sent_message, message, db, device)
             return
         
         # Renounce Command
         if command.startswith(self.cm_list.prefix + self.cm_renounce.command):
-            tokens = command.split(' ')
-            token_count = self.cm_list.token_count + self.cm_renounce.token_count
-            if len(tokens) != token_count + 1:
-                await sent_message.edit(content=self.cm_renounce.error + ":\n" + self.tab + self.cm_renounce.usage)
-                return
-            
-            code = tokens[token_count].split('/')[-1]
-            await sent_message.edit(content="**Submission Renonuced!**")
+            await self.command_renounce(tokens, sent_message, message, db)
             return
         
         # Challenge Add

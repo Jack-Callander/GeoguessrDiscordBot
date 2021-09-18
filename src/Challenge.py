@@ -74,6 +74,10 @@ class Challenge:
         s += "Time Limit or Zero: " + str(self.time_limit) + ", "
         s += "Point Target or Zero: " + str(self.point_target)
         return s
+    
+    def get_print(self) -> str:
+        # TODO change to a nice printable discord message format, potentially JSON
+        return str(self)
 
     def is_applicable(self, result: GeoguessrResult) -> bool:
         if self.map != result.map:

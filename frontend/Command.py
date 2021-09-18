@@ -20,7 +20,7 @@ class CommandList:
     def get_print(self, tab) -> str:
         out = "**Command List:**\n"
         for cm in self.list:
-            out += tab + self.prefix + cm.description + "\n"
+            out += tab + self.prefix + cm.command + " - " + cm.description + "\n"
         return out
     
     @property

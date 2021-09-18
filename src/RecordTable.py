@@ -65,7 +65,7 @@ class RecordTable:
         if self is other:
             return False
         if not isinstance(other, RecordTable):
-            raise Exception("Cannot compare RecordTable type to other type")
+            raise TypeError
         return self.challenge < other.challenge
     
     @property

@@ -1,4 +1,4 @@
-class Command:
+class Command():
     def __init__(self, command: str, description: str, usage: str, error: str = "Command error"):
         self.command = command
         self.description = description

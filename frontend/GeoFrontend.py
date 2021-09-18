@@ -22,42 +22,44 @@ class GeoFrontend:
         self.cm_list.append(self.cm_highscores)
         self.cm_list.append(self.cm_help)
     
-    async def on_message(self, message: str, client: discord.Client, device: ChromeDevice, db: Database):
-        if message.author == client.user:
+    async def command_help(self, tokens, sm):
+        if len(tokens) != 3:
+            await sm.edit(content=self.cm_help.error + ":\n" + self.tab + self.cm_help.usage)
             return
+        
+        for cm in self.cm_list.list:
+            if (cm.command == tokens[2]):
+                out = "**Command Help**:\n"
+                out += self.tab + "Name: *" + cm.command + "*\n"
+                out += self.tab + "Desc: *" + cm.description + "*\n"
+                out += self.tab + "Usage: *" + cm.usage + "*"
+                
+                await sm.edit(content=out)
+                return
+        
+        await sm.edit(content="Unknown Command: *" + tokens[2] + "*")
+    
+    async def on_message(self, message: str, client: discord.Client, device: ChromeDevice, db: Database):
     
         # New Received Message Content
         command = re.sub(r' +', ' ', message.content.strip())
+        tokens = command.split(' ')
         
         # Command List (produced by only typing the command prefix)
         if command == self.cm_list.prefix.strip():
             await message.channel.send(self.cm_list)
             return
         
-        sent_message = None
-        
         # All Commands
-        if command.startswith(self.cm_list.prefix.strip()):
-            sent_message = await message.channel.send("*Processing request...*")
-        else:
+        if not command.startswith(self.cm_list.prefix.strip()):
             return
         
+        sent_message = await message.channel.send("*Processing request...*")
         print("Processing: " + command)
         
         # Help Command
         if command.startswith(self.cm_list.prefix + self.cm_help.command):
-            tokens = command.split(' ')
-            token_count = self.cm_list.token_count + self.cm_help.token_count
-            if len(tokens) != token_count + 1:
-                await sent_message.edit(content=self.cm_help.error + ":\n" + self.tab + self.cm_help.usage)
-                return
-            
-            for cm in self.cm_list.list:
-                if (cm.command == tokens[token_count]):
-                    await sent_message.edit(content="**Command Help**:\n" + self.tab + "Name: *" + cm.command + "*\n" + self.tab + "Desc: *" + cm.description + "*\n" + self.tab + "Usage: *" + cm.usage + "*")
-                    return
-            
-            await sent_message.edit(content="Unknown Command: *" + tokens[token_count] + "*")
+            await self.command_help(tokens, sent_message)
             return
         
         # Submit and SubmitCoop Command

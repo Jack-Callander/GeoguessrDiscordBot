@@ -1,6 +1,5 @@
 from src.Challenge import Challenge, ChallengeType
 from src.ChromeDevice import ChromeDevice
-from src.Command import CommandList, Command
 from src.Database import Database
 from src.DiscordUser import Player
 from src.GeoguessrMap import GeoguessrMap

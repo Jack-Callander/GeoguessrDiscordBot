@@ -1,5 +1,6 @@
 from discord import channel
-from src import ChromeDevice, GeoguessrResult, Rules, Time, GeoguessrMap, Challenge, ChallengeType, Database, Command, CommandList, Player
+from src import ChromeDevice, GeoguessrResult, Rules, Time, GeoguessrMap, Challenge, ChallengeType, Database, Player
+from frontend import Command, CommandList
 import discord
 import os.path
 import re

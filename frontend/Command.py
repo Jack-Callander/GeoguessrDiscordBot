@@ -17,10 +17,10 @@ class CommandList:
     def append(self, cm: Command):
         self.list.append(cm)
     
-    def __str__(self) -> str:
+    def get_print(self, tab) -> str:
         out = "**Command List:**\n"
         for cm in self.list:
-            out += "    " + self.prefix + cm.usage + "\n"
+            out += tab + self.prefix + cm.description + "\n"
         return out
     
     @property

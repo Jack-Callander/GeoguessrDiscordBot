@@ -47,7 +47,7 @@ class GeoFrontend:
         
         # Command List (produced by only typing the command prefix)
         if command == self.cm_list.prefix.strip():
-            await message.channel.send(self.cm_list)
+            await message.channel.send(self.cm_list.get_print(self.tab))
             return
         
         # All Commands

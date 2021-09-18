@@ -10,3 +10,6 @@ class Player:
         if not isinstance(other, Player):
             return False
         return self.id == other.id
+    
+    def __str__(self):
+        return self.name

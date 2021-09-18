@@ -41,7 +41,8 @@ class Time:
 
     @classmethod
     def from_str(cls, text: str) -> 'Time':
-        match = re.match(r'(?:(\d+) (?:hr|hours?)(?:,| and)?(?:\s|$))?(?:(\d+) min\w*(?:,| and)?(?:\s|$))?(?:(\d+) sec\w*$)?', text.strip())
+        pattern = r'(?:(\d+) (?:hr|hour)s?(?:,| and)?(?:\s|$))?(?:(\d+) min\w*(?:,| and)?(?:\s|$))?(?:(\d+) sec\w*$)?'
+        match = re.match(pattern, text.strip())
 
         hours_match = match.group(1)
         mins_match = match.group(2)

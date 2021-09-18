@@ -20,7 +20,15 @@ class Record(ABC):
         return self.__result
 
     @abstractmethod
+    def get_print(self) -> str:
+        pass
+
+    @abstractmethod
     def __lt__(self, other):
+        pass
+    
+    @abstractmethod
+    def __str__(self) -> str:
         pass
 
 class ScoreHolder(Record):
@@ -34,6 +42,15 @@ class ScoreHolder(Record):
         if not isinstance(other, ScoreHolder):
             raise TypeError
         return self.result.score < other.result.score
+    
+    def __str__(self) -> str:
+        s = "Player: " + str(self.player) + ", "
+        s += "Score: " + str(self.result.score)
+        return s
+        
+    def get_print(self) -> str:
+        # TODO
+        return str(self)
 
 class TimeHolder(Record):
 
@@ -46,6 +63,15 @@ class TimeHolder(Record):
         if not isinstance(other, TimeHolder):
             raise TypeError
         return self.result.time > other.result.time
+        
+    def __str__(self) -> str:
+        s = "Player: " + str(self.player) + ", "
+        s += "Time: " + str(self.result.time)
+        return s
+    
+    def get_print(self) -> str:
+        # TODO
+        return str(self)
 
 class RecordTable:
     

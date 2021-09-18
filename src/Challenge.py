@@ -37,7 +37,15 @@ class Challenge:
             return True
         if not isinstance(other, Challenge):
             return False
-        return self.map == other.map and self.rules == other.rules and self.time_limit == other.time_limit and self.point_target == other.point_target
+        if self.map != other.map:
+            return False
+        if self.rules != other.rules:
+            return False
+        if self.time_limit != other.time_limit:
+            return False
+        if self.point_target != other.point_target:
+            return False
+        return True
         
     def __lt__(self, other) -> bool:
         if self is other:

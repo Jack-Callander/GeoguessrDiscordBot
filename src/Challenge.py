@@ -67,7 +67,13 @@ class Challenge:
             return self.type < other.type
 
     def __str__(self) -> str:
-        return str(self.type) + ", Map=" + str(self.map) + ", " + str(self.rules) + ", " + str(self.time_limit) + ", " + str(self.point_target)
+        s = ""
+        s += "Type: " + str(self.type) + ", "
+        s += "Map: " + str(self.map) + ", "
+        s += "Rules: " + str(self.rules) + ", "
+        s += "Time Limit or Zero: " + str(self.time_limit) + ", "
+        s += "Point Target or Zero: " + str(self.point_target)
+        return s
 
     def is_applicable(self, result: GeoguessrResult) -> bool:
         if self.map != result.map:

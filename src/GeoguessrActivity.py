@@ -40,17 +40,18 @@ class Time:
         return cls(mins=0, secs=0)
 
     @classmethod
-    def from_str(cls, str: str) -> 'Time':
-        match = re.search(r'(\d+) min.* (\d+) sec', str)
-        if match:
-            return cls(int(match.group(1)), int(match.group(2)))
-        match = re.search(r'(\d+) min', str)
-        if match:
-            return cls(int(match.group(1)), 0)
-        match = re.search(r'(\d+) sec', str)
-        if match:
-            return cls(0, int(match.group(1)))
-        return cls()
+    def from_str(cls, text: str) -> 'Time':
+        match = re.match(r'(?:(\d+) (?:hr|hours?)(?:,| and)?(?:\s|$))?(?:(\d+) min\w*(?:,| and)?(?:\s|$))?(?:(\d+) sec\w*$)?', text.strip())
+
+        hours_match = match.group(1)
+        mins_match = match.group(2)
+        secs_match = match.group(3)
+
+        hours = int(hours_match) if hours_match else 0
+        mins = int(mins_match) if mins_match else 0
+        secs = int(secs_match) if secs_match else 0
+
+        return cls(hours * 60 + mins, secs)
 
 class Rules(Enum):
     DEFAULT = 0
@@ -60,6 +61,10 @@ class Rules(Enum):
     NO_MOVE_NO_PAN_NO_ZOOM = 4
     
     def __lt__(self, other):
+        if self is other:
+            return False
+        if not isinstance(other, Rules):
+            return TypeError
         return self.value < other.value
     
     def __str__(self) -> str:
@@ -137,7 +142,10 @@ class GeoguessrActivity(ABC):
         outer_div = soup.find_all("div", {'class': self.__OUTER_CLASS_INFO}, limit=2)
         # outer_div[1] is right-hand info box at the top of the page, ie the time limit and rules
         inner_info_p = outer_div[1].find_next("p")
-        return Time.from_str(inner_info_p.text)
+        if "No time limit" in inner_info_p.text:
+            return Time.zero()
+        match = re.match(r'Max ([\w\s]+) per round', inner_info_p.text)
+        return Time.from_str(match.group(1))
     
     @property
     def rules(self) -> Rules:

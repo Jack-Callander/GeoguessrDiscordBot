@@ -163,4 +163,4 @@ class GeoguessrResult(GeoguessrActivity):
 
     def __get_time(self, div) -> Time:
         inner_div = div.find("div", {'class': self.__INNER_CLASS_DETAILS})
-        return Time.from_str(inner_div.text)
+        return Time.from_str(inner_div.text[inner_div.text.index('-')+1:])

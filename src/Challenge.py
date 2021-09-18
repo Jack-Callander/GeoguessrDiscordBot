@@ -28,7 +28,7 @@ class ChallengeType(Enum):
 class Challenge:
     map: GeoguessrMap
     rules: Rules
-    type: ChallengeType
+    type: ChallengeType = ChallengeType.POINT
     time_limit: Time = None
     point_target: int = 0
     

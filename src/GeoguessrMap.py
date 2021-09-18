@@ -22,6 +22,13 @@ class GeoguessrMap:
     def __str__(self) -> str:
         # TODO return the maps name
         return self.__code
+    
+    def get_print(self) -> str:
+        return "Some Geoguessr Map"
+
+    @property
+    def code(self):
+        return self.__code
 
     @property
     def name(self):

@@ -49,8 +49,8 @@ class ScoreHolder(Record):
         return s
         
     def get_print(self) -> str:
-        # TODO
-        return str(self)
+        out = "**" + str(self.player) + f'** - *{self.result.score:,}*'
+        return out
 
 class TimeHolder(Record):
 
@@ -70,8 +70,8 @@ class TimeHolder(Record):
         return s
     
     def get_print(self) -> str:
-        # TODO
-        return str(self)
+        out = "**" + str(self.player) + "** - *" + str(self.result.time) + "*"
+        return out
 
 class RecordTable:
     
@@ -125,4 +125,29 @@ class RecordTable:
         prev_length = len(self.holders)
         self.__holders = [x for x in self.holders if x.result.code != code]
         return prev_length != len(self.holders)
+    
+    def get_print(self, tab: str) -> str:
+        out = tab + str(self.challenge.rules) + "\n"
+        out += self.get_print_desc(tab)
+        return out
+    
+    def get_print_desc(self, tab: str) -> str:
+        out = ""
         
+        holder_count = min(self.max_record_holders, len(self.holders))
+        if holder_count == 0:
+            out += tab + '        ' + '*There have been no attempts at this challenge.*\n'
+            return out
+        
+        for i in range(0, holder_count):
+            preface = "----"
+            if i == 0:
+                preface = ":first_place:"
+            if i == 1:
+                preface = ":second_place:"
+            if i == 2:
+                preface = ":third_place:"
+            
+            out += tab + '        ' + preface + self.holders[i].get_print() + "\n"
+        
+        return out

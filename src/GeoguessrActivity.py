@@ -37,6 +37,30 @@ class Time:
     def __bool__(self):
         return self.minutes > 0 or self.seconds > 0
 
+    def get_print(self):
+        mins = f'{self.minutes} Minute'
+        secs = f'{self.seconds} Second'
+        
+        if self.minutes != 1:
+            mins += 's'
+        if self.seconds != 1:
+            secs += 's'
+        
+        out = ""
+        if self.minutes > 0:
+            out += mins
+            
+        if self.minutes > 0 and self.seconds > 0:
+            out += ' and '
+            
+        if self.minutes == 0 and self.seconds == 0:
+            out += 'No time limit'
+            
+        if self.seconds > 0:
+            out += secs
+            
+        return out
+
     @classmethod
     def zero(cls):
         return cls(mins=0, secs=0)

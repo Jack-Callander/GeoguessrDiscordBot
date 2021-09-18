@@ -82,14 +82,44 @@ class GeoFrontend:
                     await sm.edit(content="**Renouncing matches:**\n")
                 await om.channel.send(content="Removing match: " + rt.challenge.get_print())
             
-            
         if found_match:
             db.save()
             await om.channel.send(content="Done.")
         else:
             await sm.edit(content="No records match *" + code + "*")
+            
+    async def command_highscores(self, sm, om, db):
+        if not db.record_tables:
+            await sm.edit(content="*No challenges yet.*")
+            return
         
-        return
+        await sm.edit(content="**__Geoguessr Competitive__**")
+        
+        out = ""
+        curr_challenge_type = -1
+        curr_map_code = ""
+        
+        embeds = []
+        for rt in sorted(db.record_tables):
+            if curr_challenge_type != rt.challenge.type.value:
+                curr_challenge_type = rt.challenge.type.value
+                # Add the ChallengeType title (eg Point-Based:)
+                out += "**" + str(rt.challenge.type) + "**\n"
+            
+            if curr_map_code != rt.challenge.map.code:
+                curr_map_code = rt.challenge.map.code
+                # Add the GeoguessrMap title (eg Diverse Complete World)
+                embeds.append(discord.Embed(title=rt.challenge.map.get_print(),
+                    url="https://www.geoguessr.com/maps/" + rt.challenge.map.code))
+                #out += self.tab + rt.challenge.map.get_print() + "\n"
+                
+            embeds[-1].add_field(name=str(rt.challenge.rules) + " - " + rt.challenge.time_limit.get_print() + "\n", value=rt.get_print_desc(''), inline=False)
+            #out += rt.get_print(self.tab + self.tab)
+        
+        for embed in embeds:
+            await om.channel.send(embed=embed)
+        
+        #await sm.edit(content="", embeds={discord.Embed(title="lol"), discord.Embed(title="lmao")})
     
     async def on_message(self, message: str, client: discord.Client, device: ChromeDevice, db: Database):
     
@@ -227,18 +257,11 @@ class GeoFrontend:
                     await sent_message.edit(content="*Specified Challenge not found*")
             
             return
-            
+        
         # Highscores
         if command.startswith(self.cm_list.prefix + self.cm_highscores.command):
-            out_point = "**Point-Based:**\n"
-            for rt in db.record_tables:
-                out_point += self.tab + str(rt.challenge) + "\n"
-                for record in rt.holders:
-                    out_point += self.tab + self.tab + str(record.player.name) + str(record.result.score) + "\n"
-            await sent_message.edit(content=out_point)
-            
+            await self.command_highscores(sent_message, message, db)
             return
-        
         
         # Invalid Command
         await sent_message.edit(content="Unknown Command: *" + command + "*\n" + self.tab + "Type *" + self.cm_list.prefix.strip() + "* for a list of commands.")

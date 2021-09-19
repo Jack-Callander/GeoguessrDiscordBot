@@ -16,6 +16,13 @@ class CmSubmit(Command):
         code = tokens[2].split('/')[-1]
         result = GeoguessrResult(device, code, db)
         
+        # Ensure submission doesn't already exist
+        for rt in db.record_tables:
+            for holder in rt.holders:
+                if holder.result.code == code:
+                    await sm.edit(content="This submission already exists! Try renouncing the existing record.")
+                    return
+        
         try:
             await sm.edit(content="**Submission Found!**\nScore: {0}\nDistance: {1}\nTime: {2}\nMap: {3}\nTime Limit: {4}\nRules: {5}".format(
                 result.score,

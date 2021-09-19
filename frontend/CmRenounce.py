@@ -10,7 +10,7 @@ class CmRenounce(Command):
     async def run_command(self, cm: str, om: discord.Message, sm: discord.Message, device: ChromeDevice, db: Database):
         tokens = self._get_tokens(cm)
         if len(tokens) != 3:
-            await sm.edit(content=self.error + ":\n" + self.tab + self.usage)
+            await sm.edit(content=self.error + ":\n" + self._tab + self.usage)
             return
         
         code = tokens[2].split('/')[-1]

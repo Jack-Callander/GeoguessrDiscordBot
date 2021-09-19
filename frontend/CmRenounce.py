@@ -5,7 +5,7 @@ import re
 
 class CmRenounce(Command):
     def matches_command(self, cm: str):
-        return re.match(r'/geo renounce( |$)') 
+        return re.match(r'/geo renounce( |$)', cm) 
     
     async def run_command(self, cm: str, om: discord.Message, sm: discord.Message, device: ChromeDevice, db: Database):
         tokens = self._get_tokens(cm)

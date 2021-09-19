@@ -5,7 +5,7 @@ import re
 
 class CmHighscores(Command):
     def matches_command(self, cm: str):
-        return re.match("/geo highscores?$")
+        return re.match("/geo highscores?$", cm)
     
     async def run_command(self, cm: str, om: discord.Message, sm: discord.Message, device: ChromeDevice, db: Database):
         if not db.record_tables:

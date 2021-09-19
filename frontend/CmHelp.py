@@ -9,7 +9,7 @@ class CmHelp(Command):
         super().__init__(command, description, usage, error)
 
     def matches_command(self, cm: str):
-        return re.match(r'/geo help( |$)')
+        return re.match(r'/geo help( |$)', cm)
     
     async def run_command(self, cm: str, om: discord.Message, sm: discord.Message, device: ChromeDevice, db: Database):
         tokens = self._get_tokens(cm)

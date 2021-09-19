@@ -16,7 +16,7 @@ class CmRenounce(Command):
         code = tokens[2].split('/')[-1]
         found_match = False
         for rt in db.record_tables:
-            if rt.renounce(code):
+            if rt.renounce(code, om.author.id):
                 if not found_match:
                     found_match = True
                     await sm.edit(content="**Renouncing matches:**\n")
@@ -26,4 +26,4 @@ class CmRenounce(Command):
             db.save()
             await om.channel.send(content="Done.")
         else:
-            await sm.edit(content="No records match *" + code + "*")
+            await sm.edit(content="No records match *" + code + "* under *" + om.author.name + "*")

@@ -121,9 +121,9 @@ class RecordTable:
         
         return True
     
-    def renounce(self, code: str) -> bool:
+    def renounce(self, code: str, user_id) -> bool:
         prev_length = len(self.holders)
-        self.__holders = [x for x in self.holders if x.result.code != code]
+        self.__holders = [x for x in self.holders if x.result.code != code or x.player.id != user_id]
         return prev_length != len(self.holders)
     
     def get_print(self, tab: str) -> str:

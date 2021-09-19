@@ -110,10 +110,12 @@ class GeoFrontend:
                 curr_map_code = rt.challenge.map.code
                 # Add the GeoguessrMap title (eg Diverse Complete World)
                 embeds.append(discord.Embed(title=rt.challenge.map.get_print(),
-                    url="https://www.geoguessr.com/maps/" + rt.challenge.map.code))
+                    url="https://www.geoguessr.com/maps/" + rt.challenge.map.code,
+                    color=discord.Color.red()))
+                embeds[-1].set_footer(text="\u2800" * 64)
                 #out += self.tab + rt.challenge.map.get_print() + "\n"
                 
-            embeds[-1].add_field(name=str(rt.challenge.rules) + " - " + rt.challenge.time_limit.get_print() + "\n", value=rt.get_print_desc(''), inline=False)
+            embeds[-1].add_field(name="\u2800" * 2 + str(rt.challenge.rules) + " - " + rt.challenge.time_limit.get_print() + "\n", value=rt.get_print_desc("\u2800" * 2), inline=False)
             #out += rt.get_print(self.tab + self.tab)
         
         for embed in embeds:

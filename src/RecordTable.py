@@ -136,7 +136,7 @@ class RecordTable:
         
         holder_count = min(self.max_record_holders, len(self.holders))
         if holder_count == 0:
-            out += tab + '        ' + '*There have been no attempts at this challenge.*\n'
+            out += tab + "\u2800" * 2 + '*There have been no attempts at this challenge.*\n'
             return out
         
         for i in range(0, holder_count):
@@ -148,6 +148,6 @@ class RecordTable:
             if i == 2:
                 preface = ":third_place:"
             
-            out += tab + '        ' + preface + self.holders[i].get_print() + "\n"
+            out += tab + "\u2800" * 2 + preface + self.holders[i].get_print() + "\n"
         
         return out

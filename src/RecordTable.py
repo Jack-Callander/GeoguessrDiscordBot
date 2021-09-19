@@ -140,7 +140,7 @@ class RecordTable:
             return out
         
         for i in range(0, holder_count):
-            preface = "----"
+            preface = "\u2800" * 2
             if i == 0:
                 preface = ":first_place:"
             if i == 1:

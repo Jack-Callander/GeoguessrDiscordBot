@@ -1,5 +1,5 @@
 from src import ChromeDevice, Database, ChallengeType, Rules, Time, GeoguessrMap, Challenge
-import Command
+from frontend import Command
 import discord
 import re
 
@@ -9,7 +9,7 @@ class CmChallenge(Command):
     
     async def run_command(self, cm: str, om: discord.Message, sm: discord.Message, device: ChromeDevice, db: Database):
         tokens = self._get_tokens(cm)
-        error_message = self.error + ":\n" + self.tab
+        error_message = self.error + ":\n" + self._tab
         if len(tokens) != 8 and len(tokens) != 7:
             await sm.edit(content=error_message + self.usage)
             return
@@ -88,7 +88,7 @@ class CmChallenge(Command):
         # Apply
         if add:
             if db.add_table(challenge, holders):
-                await sm.edit(content="**Challenge Added:**\n" + self.tab + "Map Name: " + str(challenge.map) + "\n" + self.tab + "Type: " + str(challenge.type) + "\n" + self.tab + "Time Limit: " + str(challenge.time_limit) + "\n" + self.tab + "Rules: " + str(challenge.rules) + "\n" + self.tab + "Max Record Holders: " + str(holders))
+                await sm.edit(content="**Challenge Added:**\n" + self._tab + "Map Name: " + str(challenge.map) + "\n" + self._tab + "Type: " + str(challenge.type) + "\n" + self._tab + "Time Limit: " + str(challenge.time_limit) + "\n" + self._tab + "Rules: " + str(challenge.rules) + "\n" + self._tab + "Max Record Holders: " + str(holders))
             else:
                 await sm.edit(content="*Challenge Specified already exists!*")
         else:

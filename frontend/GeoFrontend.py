@@ -1,5 +1,5 @@
-from frontend import Command, CommandList, CmSubmit, CmSubmitCoop, CmRenounce, CmChallenge, CmHighscores, CmHelp
-from src import Challenge, ChallengeType, ChromeDevice, Database, GeoguessrMap, GeoguessrResult, Player, Rules, Time
+from frontend import CommandList, CmSubmit, CmSubmitCoop, CmRenounce, CmChallenge, CmHighscores, CmHelp
+from src import ChromeDevice, Database
 import re
 import discord
 
@@ -8,12 +8,12 @@ class GeoFrontend:
         # Commands
         self.tab = '    '
         self.cm_list = CommandList()
-        cm_submit = CmSubmit('submit', 'Submit a record', 'submit <Game Brakdown URL>|<Game Code>', 'Error submitting')
-        cm_submitcoop = CmSubmitCoop('submitcoop', 'Submit a cooperative record', 'submitcoop <Game Brakdown URL>|<Game Code>', 'Error submitting')
-        cm_renounce = CmRenounce('renounce', 'Renounce a record or cooperative record', 'renounce <Game Brakdown URL>|<Game Code>', 'Error renouncing')
-        cm_challenge = CmChallenge('challenge', 'Add or Remove a Challenge on the highscores table', 'challenge add|remove type=point|speed|streak map=<MapID> default|no-move|no-zoom|no-move-no-zoom|no-move-no-pan-no-zoom no-time-limit|<MM>-<SS> [TopSpots=3]', 'Error adding or removing challenge')
-        cm_highscores = CmHighscores('highscores', 'Show the highscores', 'highscores')
-        cm_help = CmHelp(self.cm_list, 'help', 'Get Help on another command', 'help <Command name>', 'Failed to get help')
+        cm_submit = CmSubmit.CmSubmit('submit', 'Submit a record', 'submit <Game Brakdown URL>|<Game Code>', 'Error submitting')
+        cm_submitcoop = CmSubmitCoop.CmSubmitCoop('submitcoop', 'Submit a cooperative record', 'submitcoop <Game Brakdown URL>|<Game Code>', 'Error submitting')
+        cm_renounce = CmRenounce.CmRenounce('renounce', 'Renounce a record or cooperative record', 'renounce <Game Brakdown URL>|<Game Code>', 'Error renouncing')
+        cm_challenge = CmChallenge.CmChallenge('challenge', 'Add or Remove a Challenge on the highscores table', 'challenge add|remove type=point|speed|streak map=<MapID> default|no-move|no-zoom|no-move-no-zoom|no-move-no-pan-no-zoom no-time-limit|<MM>-<SS> [mrh=3]', 'Error adding or removing challenge')
+        cm_highscores = CmHighscores.CmHighscores('highscores', 'Show the highscores', 'highscores')
+        cm_help = CmHelp.CmHelp(self.cm_list, 'help', 'Get Help on another command', 'help <Command name>', 'Failed to get help')
         
         self.cm_list.append(cm_submit)
         self.cm_list.append(cm_submitcoop)
@@ -41,9 +41,9 @@ class GeoFrontend:
         print("Processing: " + command)
         
         # Run Command if valid
-        for cm in self.cm_list:
+        for cm in self.cm_list.list:
             if cm.matches_command(command):
-                cm.run_command(cm, message, sent_message, device, db)
+                await cm.run_command(command, message, sent_message, device, db)
                 return
         
         # Invalid Command

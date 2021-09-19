@@ -1,5 +1,5 @@
 from src import ChromeDevice, Database, GeoguessrResult, Player
-import Command
+from frontend import Command
 import discord
 import re
 
@@ -10,7 +10,7 @@ class CmSubmit(Command):
     async def run_command(self, cm: str, om: discord.Message, sm: discord.Message, device: ChromeDevice, db: Database):
         tokens = self._get_tokens(cm)
         if len(tokens) != 3:
-            await sm.edit(content=self.error + ":\n" + self.tab + self.usage)
+            await sm.edit(content=self.error + ":\n" + self._tab + self.usage)
             return
         
         code = tokens[2].split('/')[-1]
@@ -26,7 +26,7 @@ class CmSubmit(Command):
                 result.rules
             ))
         except Exception as e:
-            await sm.edit(content=self.error + ":\n" + self.tab + str(e))
+            await sm.edit(content=self.error + ":\n" + self._tab + str(e))
             return
         
         for rt in db.record_tables:

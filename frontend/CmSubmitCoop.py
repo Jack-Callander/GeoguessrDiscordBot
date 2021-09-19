@@ -1,5 +1,5 @@
 from src import ChromeDevice, Database
-import Command
+from frontend import Command
 import discord
 import re
 

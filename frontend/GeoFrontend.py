@@ -22,22 +22,7 @@ class GeoFrontend:
         self.cm_list.append(self.cm_highscores)
         self.cm_list.append(self.cm_help)
     
-    async def command_help(self, tokens, sm):
-        if len(tokens) != 3:
-            await sm.edit(content=self.cm_help.error + ":\n" + self.tab + self.cm_help.usage)
-            return
-        
-        for cm in self.cm_list.list:
-            if (cm.command == tokens[2]):
-                out = "**Command Help**:\n"
-                out += self.tab + "Name: *" + cm.command + "*\n"
-                out += self.tab + "Desc: *" + cm.description + "*\n"
-                out += self.tab + "Usage: *" + cm.usage + "*"
-                
-                await sm.edit(content=out)
-                return
-        
-        await sm.edit(content="Unknown Command: *" + tokens[2] + "*")
+    
     
     async def command_submit(self, tokens, sm, om, db, device):
         if len(tokens) != 3:

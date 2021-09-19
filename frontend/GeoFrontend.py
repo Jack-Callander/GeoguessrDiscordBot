@@ -1,3 +1,5 @@
+from frontend.CmRenounce import CmRenounce
+from frontend.CmSubmit import CmHelp
 from frontend.Command import Command, CommandList
 from src import Challenge, ChallengeType, ChromeDevice, Database, GeoguessrMap, GeoguessrResult, Player, Rules, Time
 import re
@@ -10,10 +12,10 @@ class GeoFrontend:
         self.cm_list = CommandList()
         self.cm_submit = Command('submit', 'Submit a record', 'submit <Game Brakdown URL>|<Game Code>', 'Error submitting')
         self.cm_submitcoop = Command('submitcoop', 'Submit a cooperative record', 'submitcoop <Game Brakdown URL>|<Game Code>', 'Error submitting')
-        self.cm_renounce = Command('renounce', 'Renounce a record or cooperative record', 'renounce <Game Brakdown URL>|<Game Code>', 'Error renouncing')
+        self.cm_renounce = CmRenounce('renounce', 'Renounce a record or cooperative record', 'renounce <Game Brakdown URL>|<Game Code>', 'Error renouncing')
         self.cm_challenge = Command('challenge', 'Add or Remove a Challenge on the highscores table', 'challenge add|remove type=point|speed|streak map=<MapID> default|no-move|no-zoom|no-move-no-zoom|no-move-no-pan-no-zoom no-time-limit|<MM>-<SS> [TopSpots=3]', 'Error adding or removing challenge')
         self.cm_highscores = Command('highscores', 'Show the highscores', 'highscores')
-        self.cm_help = Command('help', 'Get Help on another command', 'help <Command name>', 'Failed to get help')
+        self.cm_help = CmHelp(self.cm_list, 'help', 'Get Help on another command', 'help <Command name>', 'Failed to get help')
         
         self.cm_list.append(self.cm_submit)
         self.cm_list.append(self.cm_submitcoop)
@@ -52,26 +54,6 @@ class GeoFrontend:
                 await om.channel.send(content="**Submission Satisfies:** " + rt.challenge.get_print())
         
         return
-    
-    async def command_renounce(self, tokens, sm, om, db):
-        if len(tokens) != 3:
-            await sm.edit(content=self.cm_renounce.error + ":\n" + self.tab + self.cm_renounce.usage)
-            return
-        
-        code = tokens[2].split('/')[-1]
-        found_match = False
-        for rt in db.record_tables:
-            if rt.renounce(code):
-                if not found_match:
-                    found_match = True
-                    await sm.edit(content="**Renouncing matches:**\n")
-                await om.channel.send(content="Removing match: " + rt.challenge.get_print())
-            
-        if found_match:
-            db.save()
-            await om.channel.send(content="Done.")
-        else:
-            await sm.edit(content="No records match *" + code + "*")
             
     async def command_highscores(self, sm, om, db):
         if not db.record_tables:
